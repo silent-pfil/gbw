@@ -18,7 +18,7 @@ A sci-fi trilogy about belief, biology, and what happens when the cosmos stops b
 
 ## Read it
 
-Open [`index.html`](index.html) in a browser, or enable GitHub Pages on this repo and visit the published link. From there, **Book I** is live and fully interactive.
+Open [`index.html`](index.html) in a browser. From there, **Book I** is live and fully interactive.
 
 Book I is built as an immersive reading experience, not just a text dump:
 
