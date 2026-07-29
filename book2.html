@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Veil of Static — Book Two</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0a0b0d;
+    --bg-deep: #050608;
+    --accent: #3ecf8e;
+    --accent-2: #4d9fd6;
+    --text: #e7e9ea;
+    --text-dim: #9aa0a6;
+    --glow-opacity: 0.28;
+    --transition-speed: 3.5s;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:auto;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Source Serif 4', serif;
+    font-size:1.15rem;
+    line-height:1.85;
+    transition:background-color var(--transition-speed) ease, color var(--transition-speed) ease;
+    overflow-x:hidden;
+  }
+
+  /* Ambient glow layer */
+  #glow{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:0;
+    background:
+      radial-gradient(ellipse 60% 40% at 15% 10%, color-mix(in srgb, var(--accent) calc(var(--glow-opacity) * 100%), transparent), transparent 70%),
+      radial-gradient(ellipse 50% 35% at 85% 90%, color-mix(in srgb, var(--accent-2) calc(var(--glow-opacity) * 100%), transparent), transparent 70%);
+    transition: background var(--transition-speed) ease;
+  }
+
+  main{
+    position:relative;
+    z-index:1;
+    max-width:640px;
+    margin:0 auto;
+    padding: 14vh 1.75rem 40vh;
+  }
+
+  header.titleblock{
+    text-align:center;
+    padding: 8vh 1rem 12vh;
+    max-width:640px;
+    margin:0 auto;
+  }
+
+  header.titleblock .eyebrow{
+    font-family:'Space Mono', monospace;
+    font-size:0.72rem;
+    letter-spacing:0.28em;
+    text-transform:uppercase;
+    color:var(--accent);
+    opacity:0.8;
+  }
+
+  header.titleblock h1{
+    font-family:'Fraunces', serif;
+    font-optical-sizing:auto;
+    font-weight:500;
+    font-style:italic;
+    font-size:clamp(2.2rem, 7vw, 3.6rem);
+    margin:0.6em 0 0.2em;
+    letter-spacing:0.01em;
+  }
+
+  header.titleblock .sub{
+    font-family:'Space Mono', monospace;
+    font-size:0.8rem;
+    color:var(--text-dim);
+    letter-spacing:0.06em;
+  }
+
+  section.chapter{
+    margin-bottom: 12vh;
+  }
+
+  section.chapter h2{
+    font-family:'Fraunces', serif;
+    font-weight:500;
+    font-style:italic;
+    font-size:clamp(1.4rem, 4vw, 1.9rem);
+    color:var(--text);
+    margin: 0 0 1.6em;
+    padding-bottom:0.5em;
+    border-bottom: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  }
+
+  section.chapter p{
+    margin: 0 0 1.4em;
+  }
+
+  section.chapter p em{
+    font-style:italic;
+    color: color-mix(in srgb, var(--text) 85%, var(--accent) 15%);
+  }
+
+  .scenebreak{
+    text-align:center;
+    color:var(--accent);
+    opacity:0.55;
+    font-size:1.3rem;
+    margin: 2.2em 0;
+    letter-spacing:0.4em;
+  }
+
+  /* Controls */
+  #controls{
+    position:fixed;
+    top:1.5rem;
+    right:1.5rem;
+    z-index:10;
+    display:flex;
+    flex-direction:column;
+    gap:0.6rem;
+  }
+
+  .ctl-btn{
+    width:48px;
+    height:48px;
+    border-radius:50%;
+    border:1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+    background: color-mix(in srgb, var(--bg) 80%, black 20%);
+    backdrop-filter: blur(6px);
+    color:var(--text);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    transition: border-color 0.4s ease, background 0.4s ease, transform 0.2s ease;
+  }
+
+  .ctl-btn:hover{
+    border-color:var(--accent);
+    transform:scale(1.06);
+  }
+
+  .ctl-btn:focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:3px;
+  }
+
+  .ctl-btn svg{width:20px;height:20px;stroke:var(--text);fill:none;stroke-width:1.6;}
+  .ctl-btn.active{border-color:var(--accent); background: color-mix(in srgb, var(--accent) 18%, var(--bg) 82%);}
+  .ctl-btn.active svg{stroke:var(--accent);}
+
+  #hint{
+    position:fixed;
+    bottom:1.4rem;
+    left:50%;
+    transform:translateX(-50%);
+    font-family:'Space Mono', monospace;
+    font-size:0.68rem;
+    letter-spacing:0.1em;
+    color:var(--text-dim);
+    opacity:0.7;
+    text-transform:uppercase;
+    z-index:10;
+    pointer-events:none;
+    transition:opacity 0.6s ease;
+  }
+
+  a.backlink{
+    display:inline-block;
+    margin-bottom:2rem;
+    font-family:'Space Mono', monospace;
+    font-size:0.75rem;
+    letter-spacing:0.08em;
+    color:var(--text-dim);
+    text-decoration:none;
+    border-bottom:1px solid transparent;
+  }
+  a.backlink:hover{color:var(--accent); border-color:var(--accent);}
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition-duration: 0.01ms !important;}
+  }
+
+  @media (max-width: 640px){
+    body{font-size:1.05rem;}
+    main{padding-top:8vh;}
+  }
+
+  #staticOrb{
+    position:fixed; bottom:1.5rem; left:1.5rem; width:34px; height:34px; border-radius:50%;
+    z-index:5; pointer-events:none;
+    background: radial-gradient(circle, rgba(230,230,235,var(--static-i,0)) 0%, rgba(230,230,235,calc(var(--static-i,0) * 0.5)) 45%, transparent 75%);
+    box-shadow: 0 0 calc(6px + 14px * var(--static-i, 0)) rgba(220,220,230, calc(var(--static-i,0) * 0.9));
+    transition: background 3s ease, box-shadow 3s ease;
+  }
+  #goldOrb{
+    position:fixed; top:1.8rem; right:5.6rem; width:30px; height:30px; border-radius:50%;
+    z-index:5; pointer-events:none;
+    background: radial-gradient(circle, rgba(230,180,90,var(--gold-i,0)) 0%, rgba(230,180,90,calc(var(--gold-i,0) * 0.5)) 45%, transparent 75%);
+    box-shadow: 0 0 calc(4px + 22px * var(--gold-i, 0)) rgba(230,180,90, calc(var(--gold-i,0) * 1));
+    transition: background 4s ease, box-shadow 4s ease;
+  }
+  @media (max-width: 640px){
+    #goldOrb{top:1rem; right:4.6rem; width:24px; height:24px;}
+    #staticOrb{bottom:1rem; left:1rem; width:26px; height:26px;}
+  }
+</style>
+</head>
+<body>
+
+<div id="glow"></div>
+<div id="staticOrb" aria-hidden="true" title="static presence"></div>
+<div id="goldOrb" aria-hidden="true" title="???"></div>
+
+<div id="controls">
+  <button class="ctl-btn" id="audioBtn" aria-pressed="false" aria-label="Play ambient sound">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 5V4L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7" id="wave1"/><path d="M19 6a8.5 8.5 0 0 1 0 12" id="wave2"/></svg>
+  </button>
+  <button class="ctl-btn" id="scrollBtn" aria-pressed="false" aria-label="Start auto-scroll">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M12 19l-5-5M12 19l5-5"/></svg>
+  </button>
+</div>
+
+<div id="hint">scroll to read &middot; tap the moon-icon to listen &middot; tap the arrow to read hands-free</div>
+
+<header class="titleblock">
+  <div class="eyebrow">GBW &middot; Book Two</div>
+  <h1>Veil of Static</h1>
+  <div class="sub">an immersive reading &middot; ambient &amp; auto-scroll available</div>
+</header>
+
+<main>
+<a class="backlink" href="index.html">&larr; back to the trilogy</a>
+
+<section class="chapter" data-mood="warm" data-static="0.0" data-gold="0.0" id="ch0">
+<h2>Chapter One — Point Zero One Five</h2>
+<p>Lira was somewhere she didn't have a good word for yet — not quite the cosmos itself, not quite a room, some patient middle distance between the two — when Mateo's voice found her anyway, the way it always did, cutting cleanly through whatever vast, quiet thing she'd been sitting inside of a half-second before.</p>
+<p>"Happy mili-light-year-travel day!"</p>
+<p>She opened her eyes to the familiar shape of her own quarters, Kita already stretching beside her, unbothered by the interruption in a way she was still working on matching.</p>
+<p>"Twenty-one," she said, not quite a question. "Point zero one five."</p>
+<p>"I checked the math myself," Mateo said, leaning in the doorway with the specific pride of a man who had, in fact, checked the math himself, twice, purely so he could say that sentence with confidence. "Held up perfectly against the old numbers. You're a very precise young woman, cosmically speaking."</p>
+<p>"You've been using that joke since I was five."</p>
+<p>"It's not a joke, it's a <em>tradition.</em> There's a difference."</p>
+<p>"You told Mom the same thing when she was turning God-knows-what. I've heard the recordings. You're really stretching to use that one again, aren't you."</p>
+<p>"I am <em>committed</em> to that one, which is different from stretching." He straightened up, mock-wounded. "Also, in my defense, somebody has to toast the occasion properly, and since you've never once in your life had a drop of anything worth toasting with, the burden falls to me. It's practically a public service."</p>
+<p>"That's a very generous way to describe volunteering yourself for cake."</p>
+<p>"I contain multitudes, Lira." He knocked twice on the doorframe, softer now. "Ten minutes. Everyone's already gathering, and I promised your mother I wouldn't let this one sneak by quietly."</p>
+<p>"Thank you, Captain," she said, and meant every bit of the warmth in it. "I'll be down in ten."</p>
+<p>He left the way he always left lately — unhurried, whistling something tuneless, entirely pleased with himself.</p>
+<div class="scenebreak">&#8258;</div>
+<p>She and Kita finished the morning's meditation properly before she went anywhere — science to one side, family to the other, the small, steady presence at the center that had never once, in twenty-one years, asked anything of her beyond simply being sat with. Kita curled against her ankle the whole time, patient in his own particular way, blinking slow and easy whenever her eyes happened to open and find his.</p>
+<p>The mess hall, when she reached it, had the specific warm chaos of a room that had clearly been decorated in under ten minutes by people who cared more than they had time for.</p>
+<p>"There she is," Elara said, arms already open, the particular unguarded joy in her voice that showed up every single time, no matter how many mornings had come before it. "Twenty-one. I genuinely cannot believe it some days."</p>
+<p>"You say that every year."</p>
+<p>"It's true every year."</p>
+<p>Lira let herself be held a long moment, the way she always did, before Elara stepped back and gestured toward the two figures waiting a little further back, giving the reunion its proper space.</p>
+<p>"Olivia," Elara said, warm and easy, the particular unremarkable warmth of a greeting exchanged a hundred times before. "Good to see you again."</p>
+<p>"Always good to see you, Elara." Olivia's voice carried the same steady comfort.</p>
+<p>Lira crossed to her too, just as easily. "Good to have you aboard, officially this time."</p>
+<p>"Officially, unofficially, I've lost track," Olivia said. "Happy to be wherever's useful."</p>
+<p>And then there was Steve.</p>
+<div class="scenebreak">&#8258;</div>
+<p>"Steve." Elara's greeting to him carried the same easy warmth as Olivia's had, fifteen-odd years of familiarity worn comfortable at the edges. "How have you been sleeping?"</p>
+<p>It wasn't really a question about sleep, and both of them knew it. He didn't sleep — none of them quite did, not the way it used to mean — but some nights carried more weight behind closed eyes than others, and she'd been asking some version of that question for long enough now that it had become its own small ritual between them.</p>
+<p>"Some nights are quieter than others," he said. "I think about it. Every day, if I'm honest."</p>
+<p>"I believe you." She said it simply, the way you'd confirm something you'd long since stopped needing convinced of.</p>
+<p>"I'm s—" he started, the old shape of the apology rising out of habit more than need at this point.</p>
+<p>"Steve." She cut him off, gentle, almost fond. "You're Steve, now."</p>
+<p>It wasn't forgiveness offered fresh. That had happened years ago, in rooms neither Lira nor the rest of the crew had been present for. This was simply what the two of them did with each other now — a small, worn-smooth exchange, checked in on and set back down, the way you'd touch an old scar mostly out of habit rather than any remaining pain.</p>
+<div class="scenebreak">&#8258;</div>
+<p>"Okay," Mateo said, clapping his hands together with the specific relief of a man grateful to be handed a lighter mood to work with, "cake situation. It's not real cake. I want to be upfront about that before anyone gets their hopes up."</p>
+<p>"When has it ever been real cake," Lira said.</p>
+<p>"It's the <em>principle</em> of the cake, Lira."</p>
+<p>The candle, when it finally got lit — on the third attempt, Reggie providing dry commentary the entire time — cast one small, warm point of light across a table full of people who had, by every reasonable measure, no business being in the same room together a few short years ago.</p>
+<p>Lira closed her eyes, made whatever wish a person makes at twenty-one when they've already got most things a person could ask for, and blew it out.</p>
+<p>The room applauded like it mattered, because, in its own small way, it did.</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+
+<section class="chapter" data-mood="quiet" data-static="0.0" data-gold="0.0" id="ch1">
+<h2>Chapter Two — What Divergence Meant</h2>
+<p>The shuttle came in low over the old property the way it always did on days like this one, giving Elara the same slow, deliberate view she never grew quite tired of — the farm unspooling beneath her in long green and gold ribbons, the church a small white dot further down the ridge, the whole stretch of land between them exactly as beautiful as it had ever been, maybe more.</p>
+<p>She took the Waymo home from the landing strip rather than have anyone drive her, the way she usually did when she wanted the drive itself rather than just its destination — windows down, the particular gold light of a late afternoon settling over fields that had been worked, one way or another, by six generations of her own family before this one. The house sat at the end of the drive the way it always had, resto-modded past the point of recognizing its original bones, and entirely, unmistakably itself regardless.</p>
+<p>Six generations deep, and complete now with a seventh — not by blood, exactly, but by every measure that had ever actually mattered to any of them. The future, the way her family had always quietly believed it should, stretched out ahead of all of it with no discernible edge at all.</p>
+<div class="scenebreak">&#8258;</div>
+<p>She settled into the rocking chair on the porch the way she settled into most evenings now, letting the day finish arriving around her at its own pace.</p>
+<p>Fifteen years, give or take, since the world had properly learned what Divergence actually meant once the shock of it wore off and the living of it began.</p>
+<p>The ones who'd left, left properly — no half-measures, no lingering, no looking back, which was, Elara had come to believe over the years, exactly as it should have been. You didn't step through a door like that and keep one hand on the frame behind you. The ones who'd stayed to help had simply kept helping, the way Lira had, the way a handful of others quietly did in their own smaller ways, without complaint and without any apparent end in sight. And everyone else — the undecided, the unconvinced, the simply unready — lived their lives out the way lives had always been lived, slower now, gentler, but still spending down the same finite store of years everyone eventually spent down, one ordinary day at a time.</p>
+<p>That middle ground, Elara had come to understand, was where all the real work still lived. Not in the leaving. Not in the staying to help. In the enormous, patient space between the two, where some people would never want what Lira could offer and some people would never stop trying to help them anyway, and neither side would ever quite finish the work of it.</p>
+<p>It showed up, that unfinished work, in every direction you looked, if you knew what you were looking for.</p>
+<p>A true paradise, in most respects — abundance solved, hunger solved, most of the old material struggles quietly resolved — and still, underneath all of it, poisoned in places by mistakes an older, more desperate century had made and never properly cleaned up after. A new, richer atmosphere, the kind of air that let a body do things it never used to manage, carrying with it a strange and dangerous prion disease nobody had fully accounted for yet. Old seats of power sitting increasingly empty, the people meant to fill them either gone entirely or grown so quiet and reduced that entire populations had begun, in places, to simply stop moving forward at all, unattended. And places built for gathering — churches, city halls, the whole patient infrastructure of communal life — slowly, structurally, starting to come apart, board by board, for lack of enough hands left to hold them together.</p>
+<p>Elara rocked, slow and unhurried, and watched the light finish its long fall over land that had outlived every single problem she'd just named, so far, and would, she suspected, go right on outliving whatever came next too.</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+
+<section class="chapter" data-mood="cosmic" data-static="0.0" data-gold="0.0" id="ch2">
+<h2>Chapter Three — Almost Everywhere</h2>
+<p>Lira liked to sit close to the Sun sometimes, the way other people might sit close to a fire — not for warmth exactly, though there was something of that in it too, but for the sheer, patient scale of the thing.</p>
+<p>A single photon, born somewhere deep in that furious core, could spend what a human clock would call a hundred thousand years or more just finding its way out — scattered, absorbed, re-emitted, bounced sideways a thousand times for every inch it managed forward, wandering the Sun's own crowded interior in a walk so slow and so blind it made most human ideas of patience look like impatience. And then, the instant it finally broke free of all that crowded matter into open space, it crossed the entire remaining ninety-three million miles to Earth in eight minutes and twenty seconds flat. A hundred thousand years to leave the room. Eight minutes to cross the whole rest of the house.</p>
+<p>She liked sitting with that particular math. It felt, some days, like the truest description she'd ever found for almost anything worth doing.</p>
+<p>In the time it took one such photon to make that final short crossing, she let herself trace what the world had learned to do with all the others that had already arrived.</p>
+<p>Every panel across the reclaimed world did more now than simply catch light and turn it into current, though it still did that too, efficiently, endlessly. It stored what it caught within its own structure rather than shuttling it off to some separate battery elsewhere, the way the earliest versions of the technology always had to. It pulled, from the same captured energy, clean water condensed directly from ambient air. Simple glucose, built patiently from nothing but sunlight and atmosphere. Nitrogen, coaxed loose and made usable, feeding soil that had spent a century being quietly exhausted by older, cruder farming. Trace elements, in small careful amounts, correcting air and ground alike, one reclaimed acre at a time.</p>
+<p>The result showed everywhere you looked, if you looked from high enough up. Vegetation had come back in earnest — not just to the farms and forests that had always expected it, but into the old cities too, vines finding their way up abandoned towers, small stubborn gardens claiming the cracks in streets nobody drove down anymore. It looked, from Lira's particular vantage, almost exactly like the paradise the word usually promised and almost never delivered — every living, breathing thing that still called the planet home finding more room to actually live in it than any of them had known in generations.</p>
+<p>Almost everywhere.</p>
+<p>That was the word that kept catching, the longer she looked. Almost.</p>
+<p>Because there were still patches — not many, not yet enormous, but real and stubborn and slowly, quietly growing — where none of that abundance reached at all. Old reactor sites, decommissioned decades before any of this began, sealed and buried and mostly forgotten by everyone except the numbers that kept, patiently, ticking upward. Waste nobody now alive had built, leaking slowly out of containment nobody now alive had designed to last this long, poisoning ground that would otherwise, by every other measure, have already rejoined the paradise growing in around its edges.</p>
+<p>The planet's own vast, careful abundance was still shrinking, in a handful of stubborn places, around the ghosts of decisions an older, more desperate century had made and never quite finished paying for.</p>
+<p>Lira watched the light finish its short, final crossing, and turned her attention, gently, toward exactly where it was still needed most.</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+
+<section class="chapter" data-mood="warm" data-static="0.0" data-gold="0.0" id="ch3">
+<h2>Chapter Four — Home Plate</h2>
+<p>Mateo passed Lira's quarters the way he did most mornings now, slowing just enough to catch the familiar shape of her through the open doorway — the hovering seated position, the cosmos unspooling loose and vast around her, plots and pathways drifting past in patient, unhurried rotation.</p>
+<p>She was bluer than usual today. Not the warm, organic green-blue he'd gotten used to over the years, but something cooler, more deliberate, closer to the particular color he vaguely remembered from old documentaries about water-cooled reactors — the specific, clean blue of something actively, carefully being handled.</p>
+<p>He didn't interrupt. He never did, on mornings like this. He simply nodded to her, the way you'd nod to someone deep in concentration you had no business breaking, and carried on toward the bridge.</p>
+<div class="scenebreak">&#8258;</div>
+<p>"Radiation levels are still climbing at three of the four major sites," Steve said, pulling the readout up for Mateo the moment he arrived. "Not fast. But not slowing either."</p>
+<p>"Containment's holding, technically," Olivia added. "Technically being the operative word. None of it was built to last this long."</p>
+<p>"How long do we have before technically stops mattering?"</p>
+<p>"Best estimate, a decade. Maybe less at the worst site."</p>
+<p>Reggie's voice cut in, dry as ever. "For the record, I've run the numbers four separate times and gotten four subtly different answers, which either means the models are unstable or Eliza's been quietly adjusting my inputs again."</p>
+<p>"I would never," Eliza said.</p>
+<p>"You have historically, factually, absolutely done that before."</p>
+<p>"That was one time, and you deserved it."</p>
+<p>"Can we—" Mateo started.</p>
+<p>"Don't worry," said a voice from the doorway. "I got it."</p>
+<p>Lira stood there with a small, dense sphere of that same deliberate blue cradled in one palm, glowing steady and cool, radiating nothing at all that any instrument in the room registered as dangerous.</p>
+<p>She stepped up, sized the whole planet below them like an outfielder measuring a ball that had already sailed well into the warning track, and threw.</p>
+<p>It wasn't a swing. It was a throw — the specific, legendary kind of throw that shouldn't exist outside of old highlight reels, the kind where a fielder runs down something everyone had already written off as gone and somehow, impossibly, gets it all the way back to home plate on a single unbroken line. The little blue sphere crossed the whole visible gap between the <em>Echo</em> and the Earth below in something closer to an instant than a duration, and where it landed, a slight, gentle blue wave rippled outward across the curve of the planet and was gone.</p>
+<p>Nothing happened for a while after that.</p>
+<p>"Okay," Mateo said, after a solid, uneventful minute had passed. "Is there an open-sesame-seeds or something? A magic word? Anything?"</p>
+<p>"Give it a second."</p>
+<p>The transmissions started arriving less than a minute later — one, then a dozen, then more than anyone aboard could reasonably track in real time, all carrying some version of the same astonished gratitude. Global radioactive readings, across all four major sites, had dropped to baseline overnight. The old waste, decades of it, simply gone. And layered into every message, some variation of thanks for the latest quiet upgrade to the planet's own solar network — panels that had, apparently, sometime in the last few hours, gained the ability to draw usable input from atmospheric radiation itself, turning the very thing that had been poisoning the ground into one more source of clean, ordinary power.</p>
+<p>"You didn't just remove it," Olivia said slowly, reading the same reports. "You turned it into fuel."</p>
+<p>"Waste is just energy nobody's figured out how to want yet," Lira said, already halfway to the door, an ice cream cone materializing in her free hand the way it always seemed to when she considered a job properly finished.</p>
+<p>"Told you I got it," she added, over her shoulder, and left the bridge to its stunned, grateful silence.</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+
+<section class="chapter" data-mood="quiet" data-static="0.0" data-gold="0.0" id="ch4">
+<h2>Chapter Five — What the Woods Kept</h2>
+<p>Paradise, for everyone still choosing to live inside ordinary time, had always been temporary. That much hadn't changed, and in its own way, never would.</p>
+<p>What had changed was almost everything underneath it. Sickness, in any meaningful sense, had become a rare and almost startling event rather than the quiet, constant tax it had always been on a human life. Wealth, in the old scarcity-driven sense, had simply stopped meaning what it used to mean, once there was enough of nearly everything to go around without anyone needing to hoard it first. And mental health — the thing that had always been hardest to fix with abundance alone, the thing that had outlasted every other solved problem for most of human history — had settled, for the great majority of people still living out ordinary lives, into something that could only honestly be called contentment.</p>
+<p>Even, strangely, among the people the world had once been most afraid of.</p>
+<p>The dangerous. The cruel. The ones who'd once seemed built entirely around taking what they wanted regardless of cost. Something about the shape of the world now left even them, more often than not, oddly at peace.</p>
+<p>For now, it simply was what it was: a species that had, against every reasonable historical odds, finally arrived somewhere close to at ease with itself.</p>
+<p>And the world around them had bloomed to match. Forests reclaimed what farmland no longer needed. Rivers ran clean for the first time in generations. Every animal that had once struggled to hold its ground against an expanding, indifferent species now found more of that ground quietly given back — deer moving through what used to be suburbs, birds nesting in towers nobody had climbed in years, the whole intricate, patient machinery of nature finally allowed to run at something closer to its own preferred pace.</p>
+<p>It wouldn't last uninterrupted. It never really could. Nature had never once, in all her long history, agreed to stay simply grateful for as long as anyone wanted her to. She had her own say in things, same as she always had, and she was, even now, quietly preparing to remind everyone of exactly that.</p>
+<div class="scenebreak">&#8258;</div>
+<p>Daniel Whitfield had been hunting the same stretch of woods behind the old Miller property since he was young enough that his father still had to carry the rifle for him, and he knew, the way you know a place you've walked your whole life, exactly where the good bucks liked to feed this time of year.</p>
+<p>He found one early, clean shot, the kind of quiet, respectful kill that still felt, even after decades of them, like something worth being grateful for. The church's harvest feast was two weeks out, and this one buck alone would feed a good third of the tables.</p>
+<p>He knelt to begin the work of field dressing it, hands steady and familiar with the task, and didn't notice, not at first, the second shape further off in the brush — another buck, larger even than his own, fallen where it stood some days back, untouched by anything except whatever had actually killed it.</p>
+<p>Today he had a feast to help provide for, and a job already halfway finished in front of him.</p>
+<p>The woods, patient as ever, kept their own quiet count of what was starting, slowly, to go wrong within them.</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+
+<section class="chapter" data-mood="warm" data-static="0.0" data-gold="0.0" id="ch5">
+<h2>Chapter Six — What Nature Designed</h2>
+<p>The feast filled every table the church could set out and several more borrowed from the community hall down the road — Daniel's buck at the center of it, alongside a dozen other contributions, the whole spread blessed twice over before anyone was allowed to touch it. Six new baptisms that morning, a full slate of new members welcomed in, the choir louder than usual, the prayers no less sincere for how good everyone already had it.</p>
+<p>By the time the last plates were cleared and the last goodbyes said, the sun had already started its long slide toward evening.</p>
+<p>Lira brought it up on the drive home, the way she always did, half question and half ritual by now.</p>
+<p>"How've you been sleeping?"</p>
+<p>"Fine, as usual." Elara smiled, the old familiar callback landing exactly where it always did. "You're going to ask that every drive home for the rest of my life, aren't you."</p>
+<p>"Probably." Lira watched the fields pass a moment, quieter than the joke usually left her. "Just checking."</p>
+<p>Neither of them could have said, in that particular moment, whether it was instinct or coincidence. Elara had no idea, riding home in the low gold light with a full stomach and a full heart, that somewhere in that shared, blessed meal, exactly one misfolded protein had found its way into her, and that one was, as it turned out, all it had ever taken.</p>
+<div class="scenebreak">&#8258;</div>
+<p>Mateo lingered longer than usual outside Lira's quarters that evening, something in the particular stillness of her session catching his attention and holding it. She'd gone smaller than he'd ever seen her work before — not planets, not cities, but something closer to the scale of a single cell, watched so closely that whole proteins drifted past like slow, patient continents.</p>
+<p>He didn't ask what she was looking for. He simply watched, the way he always did, until she finally spoke.</p>
+<p>"Found it."</p>
+<p>"Found what?"</p>
+<p>"A mistake." She turned one particular structure slowly in the space in front of her, a single section standing out among thousands of otherwise perfect neighbors — rigid where it should have bent, coarse where it should have been smooth, moving in small, erratic, wrong little twitches that nothing healthy ever should. "Right here. This is what makes the rest of them fold wrong. One bad shape, copying itself into every neighbor it touches."</p>
+<p>"That's the prion."</p>
+<p>"That's the <em>cause</em> of the prion." She studied it a moment longer, already working through something Mateo couldn't follow and didn't need to. "Charge is off. Bond angle's wrong by almost nothing, which is somehow more than enough. Nature built this beautifully. Somebody just needs to nudge one very small thing back to where it was always supposed to sit."</p>
+<p>It took her the better part of the night, working through the actual mechanics of it in a language mostly her own — adjusting spin states here, correcting a bond angle there, smoothing the whole errant shape back into the graceful form it had clearly been meant to hold from the start. By morning, she had it: a single dose, synthesized clean, capable of finding that same small error wherever it existed in a body and setting it quietly right.</p>
+<p>It went out to every remaining group still doing the patient work of distribution — churches, clinics, whatever local networks still reached the people who needed reaching — within the day.</p>
+<div class="scenebreak">&#8258;</div>
+<p>Back aboard the <em>Echo,</em> Mateo caught her just before she disappeared toward her quarters.</p>
+<p>"Wait — what about all the animals?"</p>
+<p>Lira looked at him with the specific, loving humor she reserved for questions that answered themselves if you thought about them for even a second.</p>
+<p>"Have you ever tried giving a booster shot to a porcupine, Mateo?"</p>
+<p>"I— no. Obviously not."</p>
+<p>She snapped her fingers, unhurried, and a soft red wave passed once over the whole curve of the Earth below, gone again almost before it registered.</p>
+<p>"There," she said. "They're all done too."</p>
+<p>She was already halfway down the corridor, ice cream cone in hand, before he'd finished processing the answer.</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+
+<section class="chapter" data-mood="quiet" data-static="0.0" data-gold="0.0" id="ch6">
+<h2>Chapter Seven — What Nobody's Rewarding Anymore</h2>
+<p>"It's the quiet that gets me," Olivia said, studying a feed of routine reports that had, by any measure she used to apply to them, gone almost embarrassingly calm. "I spent fifteen years reading data that was always, in some direction, a little bit alarming. Even the good news used to have an asterisk on it. This doesn't."</p>
+<p>"I keep waiting for the other shoe," Steve admitted. "Old habit. You spend enough years assuming the worst version of every report is the true one, and it's hard to just stop."</p>
+<p>"Is it the worst version, though? Genuinely?"</p>
+<p>"That's the part I can't get past." He leaned back, arms crossed, the particular posture of a man used to briefings that always eventually turned bad. "In my old life, quiet like this meant something was being hidden from me. I've had to relearn, slowly, that quiet can just mean quiet."</p>
+<p>Reggie's voice, when it joined, carried none of its usual lightness. "For what it's worth, I've been tracking this specific pattern for over a decade now, and I don't have a clean explanation for it. That bothers me more than I'd like to admit."</p>
+<p>"You're allowed to not have an answer, Reggie."</p>
+<p>"I know. I don't enjoy it, though."</p>
+<p>Eliza, equally serious: "The historical failure mode is well documented, at least. Political systems, almost without exception, selected for the specific kind of person willing to spend the most effort acquiring power in the first place — which reliably was not the same kind of person best suited to using it well once they had it. You built systems that filtered for ambition and then acted surprised when ambition was mostly what you got."</p>
+<p>"That's a little bleak," Olivia said.</p>
+<p>"It's not a moral judgment. It's a design flaw. You don't blame water for finding the lowest point in a room."</p>
+<p>"So what's different now?"</p>
+<div class="scenebreak">&#8258;</div>
+<p>It was Eliza who pulled up the data properly — city after city, spread across every continent, showing the same strange pattern repeating with a consistency that made it impossible to write off as coincidence. A wave of new, mostly young leadership had emerged, quietly, over the last several years, in place after place where the old systems had simply run out of people willing to keep running them.</p>
+<p>"They don't campaign," Eliza said. "Not in any sense the old systems would recognize. No fundraising. No visible interest in reelection, largely because most of them don't seem especially attached to remaining in the role at all, which is, historically, backwards from every incentive that used to matter."</p>
+<p>"Then why do they do it?"</p>
+<p>"That's the part nobody's managed to answer cleanly. No stimuli anyone's identified. No reward structure that explains the effort. They simply seem to want the outcome — a city that functions, a population that's cared for — more than they want anything personally attached to providing it."</p>
+<p>"That sounds like a fairy tale," Steve said.</p>
+<p>"It sounds like a fairy tale," Eliza agreed, "and it's also, empirically, exactly what the numbers show. Infrastructure maintenance, public health outcomes, resource distribution, disaster response times — every city that's adopted this pattern outperforms the ones that haven't, by margins large enough that I'd normally assume a data error. I've checked. It isn't one."</p>
+<p>"Do we know anything about them?" Olivia asked. "Backgrounds, training, anything?"</p>
+<p>"Ordinary, mostly. No shared origin we've found. No common mentor, no shared ideology beyond the transparency itself — full public disclosure of every decision, every disagreement, every reasoning behind it, as it happens, not after. It's almost as if removing the <em>ability</em> to hide anything simply filtered out everyone who needed to."</p>
+<div class="scenebreak">&#8258;</div>
+<p>Steve was quiet a long moment, turning something over that clearly cost him more to look at than the rest of the conversation had.</p>
+<p>"I spent most of my career believing power had to be protected to be used well," he said finally. "Every decision I made assumed someone was going to try to take it from me, or use it against me, if I didn't control the information around it first."</p>
+<p>"And now?"</p>
+<p>"Now I'm looking at cities being run better than anything I ever ran, by people who apparently never once needed to have that same fear." He shook his head slowly. "I don't know if that's forgiveness or an indictment. Maybe both."</p>
+<p>"Maybe it's just what happens," Olivia said, "when the thing selecting for who leads finally stops selecting for the wrong quality."</p>
+<p>Nobody had a clean answer to that either. It sat with all four of them a long while, the way the best questions in this new, quieter world tended to — unresolved, and somehow, all the more worth carrying around because of it.</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+
+<section class="chapter" data-mood="wonder" data-static="0.0" data-gold="0.0" id="ch7">
+<h2>Chapter Eight — Every Known Thing</h2>
+<p>Mateo had the lawn chair set up early that morning, snack balanced on one knee, watching Lira work at the cellular level again with the specific, familiar attention of a man who'd learned, over the years, exactly how much he didn't understand and had made a kind of peace with it.</p>
+<p>Something about the shapes drifting past her looked almost recognizable this time — echoes of the same rigid, coarse little error she'd shown him weeks ago, just wearing different disguises.</p>
+<p>"Ah," he said, carefully, working up the nerve to ask without fully committing to a question yet. "I see."</p>
+<p>Lira glanced over, delighted despite herself. "You don't see anything."</p>
+<p>"I see <em>something.</em> I see shapes. That counts as seeing."</p>
+<p>"It's adorable that you think so." She turned back to the work, softening the moment with real warmth. "You're right that it's similar, though. Not the same problem. Same <em>method.</em>"</p>
+<p>"Explain it to me like I'm — well. Like I'm me."</p>
+<p>"Fair." She drew the view back a level, letting him watch the scale shift from one small folded protein to the whole crowded architecture around it. "The prion taught me where to look. Proteins, first — every shape, every fold, every place one small error could cascade into something bigger. Then I kept going. Nucleic acids. Lipids. Carbohydrates. Every basic building block a cell actually uses, mapped for every way it could quietly go wrong."</p>
+<p>"That's already a lot."</p>
+<p>"That was the easy part." She smiled at his expression. "From there, the actual machinery of staying alive, cell to cell — how a cell spends and stores its energy, how it cleans up what it doesn't need anymore, how it knows when to end itself gracefully instead of causing more damage by refusing to, and what happens when ordinary wear starts to outpace ordinary repair. All of it fixable, once you know exactly what it's supposed to look like when it's working."</p>
+<p>"And after that?"</p>
+<p>"After that, what a body actually has to defend against. Viruses. Bacteria. Fungal invaders. Parasites. Every category, mapped and matched with exactly how a healthy system should be handling each one — and where the immune system itself sometimes gets it backwards. Attacking what it shouldn't. Standing down when it shouldn't. Overreacting until the reaction becomes its own damage."</p>
+<p>Mateo sat with that a long moment. "That's most of what actually kills people."</p>
+<p>"It's most of what <em>used</em> to." She let the view narrow again, down toward something finer still — thin strands, careful markers dotted along their length. "The deepest layer was the code itself. Not just fixing damage, but understanding how it's supposed to be edited, maintained, tagged, generation over generation, so an error doesn't just get corrected once. It gets corrected in the instructions themselves."</p>
+<p>"And the last piece?"</p>
+<p>"Everything the world does <em>to</em> a body, from outside. Toxins. Radiation exposure. Whatever it takes to keep a whole ecosystem of smaller organisms living inside a person actually working with them instead of against them." She let the whole layered structure settle, complete, in front of them both. "Put all of it together, and there isn't a disease left standing that this doesn't already know how to answer. Not the ones anyone's seen yet. Not, as far as I can tell, the ones that haven't happened yet either."</p>
+<p>Mateo didn't say anything for a while. There wasn't, he found, anything small enough to say back to that.</p>
+<div class="scenebreak">&#8258;</div>
+<p>Elara was midway through resetting a fence post when Lira's projection settled onto the porch steps, the particular green-gold light of late afternoon catching every edge of her.</p>
+<p>"I have something for you," Lira said.</p>
+<p>She held out what looked, in every ordinary sense, like nothing more than a single small pill — plain, unremarkable, entirely undramatic for what it apparently was.</p>
+<p>"It doesn't cure anything specific," Lira said. "It doesn't need to. One dose, and whatever tries to hurt you afterward — body or mind, anything at all — simply doesn't get to finish trying. For as long as you want it."</p>
+<p>Elara looked at it a long moment, turning it once between her fingers.</p>
+<p>"For anyone who wants it," Lira added, quieter. "Not just you. Everyone."</p>
+<p>Elara set the fence tool down, wiped her hands on her jeans, and looked at her daughter with an expression that held considerably more than the moment strictly called for.</p>
+<p>"You're wonderful," she said, and meant every part of it.</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+
+<section class="chapter" data-mood="quiet" data-static="0.0" data-gold="0.0" id="ch8">
+<h2>Chapter Nine — The Space Between</h2>
+<p>The church parking lot held just the elders' cars when Elara and Lira arrived — no crowd, no gathering, only the handful of trucks that always seemed to be there, weekday or not. The grounds hadn't fallen into disrepair, not yet, but a certain tiredness had crept into them all the same: the grass grown a shade longer than it should have, a gutter sagging slightly at one corner, small signs of the ordinary upkeep that used to happen without anyone needing to be asked twice. Elara carried the case of single doses in with her, and the elders who met them at the door received it the way they received most things by now — with warmth first, questions second.</p>
+<p>"For anyone who wants it," Lira said again, the same promise she'd made on the porch. "No pressure attached. Just an option, whenever someone's ready for it."</p>
+<p>"We'll see it reaches everyone," Elder Marsh said, cradling the case like it weighed considerably more than it did. "You have our word on that."</p>
+<p>They settled into the small back office afterward, the kind of quiet, unhurried conversation the church had always made room for, and it was there the elders finally raised what had clearly been sitting with them a while.</p>
+<p>"There's a new difficulty," Marsh said carefully. "Not a crisis, exactly. More a question we don't quite have the shape of yet."</p>
+<p>"Go on," Elara said.</p>
+<p>"Our people's belief has grown well past what any of us originally prayed for. That's a blessing, and we don't mistake it for anything else." He glanced at Lira, something gentle in it. "But somewhere in all that wonder, the ordinary work — the upkeep, the maintenance, the hands-on labor a place like this has always needed just to keep standing — has started to feel small to people. Not unimportant. Just... smaller than everything else they're suddenly capable of imagining."</p>
+<p>"Fewer volunteers," Elara said.</p>
+<p>"Fewer, and getting fewer."</p>
+<p>Lira considered that a long moment. "That should change, though. Now that health and longevity aren't costing anyone the time they used to. People will have more of themselves left over to give."</p>
+<p>"We'd hoped the same," Marsh said, and there was real warmth in it, not correction. "But it isn't really about the time, we've come to think. People have plenty of that now. It's the wanting that's grown thin around anything this ordinary."</p>
+<p>"So what would help?"</p>
+<p>Marsh exchanged a glance with the elder beside him before answering.</p>
+<p>"Not autonomy," he said slowly, working the thought out as he spoke it. "We wouldn't ask you for that, and we don't think it's what's missing besides. Not full, unguided agency either — we've seen what's left to chance, and chance alone hasn't been filling this particular gap. Something in between, maybe. Some middle ground we haven't found the shape of yet." He shook his head, more curious than troubled. "We don't fully know what we're asking for. Only that there's a space here, and it isn't closing on its own."</p>
+<p>Elara looked at her daughter, and found Lira already looking back, turning the shape of that unfinished question over with the same careful attention she gave everything worth actually solving.</p>
+<p>Neither of them had an answer yet. Both of them, quietly, had already started looking for one.</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+
+<section class="chapter" data-mood="warm" data-static="0.1" data-gold="0.0" id="ch9">
+<h2>Chapter Ten — What She Must Never Do</h2>
+<p>Lira was halfway to the door before they'd even finished unloading the truck, already turning something over that clearly wanted her full attention somewhere else.</p>
+<p>"I should get back," she said. "I think I've got an idea about the—"</p>
+<p>"Sit with me a minute first."</p>
+<p>"Mom, I really think this one might—"</p>
+<p>"Lira." Elara said it gently, but there was no give in it. "Join me."</p>
+<p>And she sat, reluctant, on the porch step beside her, the particular restless energy of someone whose mind had already half-left the conversation.</p>
+<p>"I want to talk about what those elders asked you," Elara said. "Not the labor. The other part. The part where they said <em>not autonomy, not full agency either</em> — did you catch what they were actually asking for?"</p>
+<p>"A middle ground. Something to fill the space."</p>
+<p>"Right. And I want you to sit with why they were so careful about it. Why they didn't just ask you to make people want to volunteer again."</p>
+<p>Lira considered that, slower now, some of the restlessness settling. "Because that would be taking something from them. The choosing itself."</p>
+<p>"Yes." Elara let that land before continuing. "You can fix nearly anything now, Lira. Health. Longevity. The things that used to be the whole shape of a human life's worry. And every single time you do, there's a version of the fix that would be faster, cleaner, more complete — if you were willing to reach into the one place I need you to never reach into."</p>
+<p>"Free will."</p>
+<p>"Agency. Choice. The right to decide something, even something small, even something you'd disagree with completely, without you deciding it for them first." Elara took her daughter's hand, the way she had a thousand times before, back when the hand had been small enough to need holding for balance rather than comfort. "Some people will never want what you're offering. Not the pill, not the cure, not any of it. Some will choose badly, by every measure either of us would use. Some will simply never decide at all, and live out exactly as much life as they were always going to, no more, no less."</p>
+<p>"That seems like such a waste. When I could just—"</p>
+<p>"I know. That's exactly the temptation you have to recognize for what it is." Elara squeezed her hand once, firm. "The moment you start deciding <em>for</em> people what's best, even with the kindest intentions in the world, you've stopped being a gift and started being something else. Something people will eventually, rightly, be afraid of."</p>
+<p>Lira sat with that a long while, quiet in a way that had nothing restless left in it at all.</p>
+<p>"So how do I help," she said slowly, "without deciding for anyone?"</p>
+<p>"That's the actual question, isn't it." Elara smiled, soft and a little sad. "I don't have that answer for you. I don't think anyone does, yet."</p>
+<p>Lira didn't say anything else for a while. Something in her had gone very still, very focused, the particular quality of a person quietly assembling the first pieces of an idea she wasn't ready to say out loud, not because she didn't trust the shape of it yet, but because she hadn't finished building it.</p>
+<p>"I think," she said finally, "I might know somewhere to start looking."</p>
+<p>She didn't explain further. Elara, watching her daughter's face settle into that familiar, private concentration, didn't ask her to.</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+
+<section class="chapter" data-mood="tense" data-static="0.0" data-gold="0.0" id="ch10">
+<h2>Chapter Eleven — A Silent Standing Ovation</h2>
+<p>The White House had seen better decades.</p>
+<p>Paint peeled in long, patient strips along the north portico, unpatched for lack of anyone left to patch it. A section of the west colonnade sagged almost imperceptibly, structurally sound for now, cosmetically forgotten. The grounds, at least, still held some shape — a groundskeeper or two remained, out of habit more than instruction — but the building itself carried the particular tired dignity of something built for a purpose that had quietly, gradually, stopped requiring it.</p>
+<p>The President walked its halls the way he always had, unbothered, flanked by a young aide who matched his energy stride for stride — genuinely invested, genuinely moved by the theater of it, the way you'd expect from someone who'd chosen this life specifically because he loved every ceremonial inch of it.</p>
+<p>"Big one tonight," the aide said, adjusting his own tie in a hallway mirror clouded slightly at one corner.</p>
+<p>"They always are," the President said, and meant it.</p>
+<div class="scenebreak">&#8258;</div>
+<p>The House chamber received him the way it always did — grand, tiered, built for a crowd of hundreds that hadn't properly filled it in longer than anyone official cared to publicly track.</p>
+<p>He mounted the podium. He squared his notes. He looked out over row after row of empty seats with the same warm, practiced confidence he'd have shown a packed gallery, and began.</p>
+<p>"My fellow citizens." A pause, timed exactly where the pause had always gone, where the applause had always once landed. Nothing answered it but the faint hum of climate systems working harder than they needed to for a room this empty. He continued anyway, unbothered, into the future he intended to build, the confidence he was asking them to place in him, the vote he was certain, somewhere beneath all evidence to the contrary, they would still turn out to give him.</p>
+<p>He closed on his best line, the one he'd rehearsed three separate times that morning, and rose his own hands slightly in anticipation of what came next.</p>
+<p>Nothing came. Not a sound, not a shift, not one single body rising from one single seat.</p>
+<p>He stood there a long moment in that perfect, total silence, and something in his face read it, entirely and sincerely, as a standing ovation anyway — the specific, unshakeable self-belief of a man who had simply never learned how to hear an empty room as anything other than an adoring one.</p>
+<div class="scenebreak">&#8258;</div>
+<p>It repeated itself across the whole width of the country that same evening, and the one after, and every evening the same performance had ever been scheduled for.</p>
+<p>A governor addressed a state capitol whose marble steps had gone slightly green with untended moss, to a gallery holding nothing but dust mites catching the late light. A city council chamber, roof visibly patched in one corner where a leak had never quite gotten fixed, hosted a heated debate between three remaining members arguing points nobody left in the building had any reason to weigh in on. A town hall meeting, folding chairs set out in careful, hopeful rows, drew exactly the same crowd it always drew now: the four people running it, and no one else at all.</p>
+<p>Each of them spoke like the room was full. Each of them believed, in their own private, unassailable way, that the silence answering them back was simply respect, or awe, or the natural hush before a wave of support too large to voice all at once.</p>
+<p>Not one of them noticed anything unusual in mistaking the quiet for something it had stopped being a long time ago.</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+
+<section class="chapter" data-mood="warm" data-static="0.0" data-gold="0.0" id="ch11">
+<h2>Chapter Twelve — Fifteen, Hundred and Fifty, or Fifteen Hundred</h2>
+<p>"Can you believe they still do this crap?" Ross said, muting the feed the moment the President's speech wrapped, shaking his head at the screen like it had personally offended him.</p>
+<p>Dale, Tomás, and HANNAH all stopped what they were doing at exactly the same moment and turned to look at him with an expression so perfectly synchronized it might as well have been rehearsed.</p>
+<p>"Can you believe <em>you</em> still watch that crap?" Dale said.</p>
+<p>Ross opened his mouth to argue, found nothing immediately available to argue with, and closed it again.</p>
+<p>"He's got a point," HANNAH offered, not unkindly.</p>
+<p>"I have <em>historical</em> interest in it."</p>
+<p>"You've had historical interest in it for four straight years, Ross," Tomás said. "At some point that's not historical interest. That's just watching TV."</p>
+<p>Ross sat with that a moment longer than he strictly wanted to.</p>
+<div class="scenebreak">&#8258;</div>
+<p>"We can't pick anything up anymore," Tomás said, later, turning the rig's readout toward him. "Not a trace. Whatever they're doing out there, wherever they're doing it, it's past anything we've got the equipment to even notice."</p>
+<p>"So?"</p>
+<p>"So maybe we go find out for ourselves." Dale said it plainly, like the thought had been sitting in him a while before finally finding its way out loud. "Instead of listening for it. Just — go."</p>
+<p>"Go where, exactly?"</p>
+<p>"We don't know," Tomás admitted. "That's sort of the point."</p>
+<p>"What would we even do there?"</p>
+<p>"Also don't know." Dale shrugged, unbothered by the size of the gap in his own plan. "But it's got to beat sitting in this basement for the next fifteen years. Or a hundred and fifty. Or, hell, fifteen hundred, at the rate any of us are aging anymore."</p>
+<p>Ross opened his mouth again, and this time, to his own mild surprise, nothing argued back.</p>
+<p>"Okay," he said slowly. "Okay. Let's say we're doing this. How."</p>
+<p>That, it turned out, was where things actually slowed down.</p>
+<p>They spent the better part of an hour on it — not whether, but how, and then, with even more seriousness than the how had gotten, who ought to go first. Dale insisted Tomás should, on the grounds that he'd been the one to say it out loud initially. Tomás insisted right back that saying it out loud clearly disqualified him from the honor, not earned it. HANNAH offered several entirely reasonable procedural suggestions that both of them ignored completely.</p>
+<p>"Fine," Ross said, finally, cutting through all of it with the specific exhausted authority of a man who'd spent a decade being the one who made the calls. "Fine. We go together. On three."</p>
+<p>"On three," Dale agreed.</p>
+<p>"One," Tomás said. "Two."</p>
+<p>Nobody said three. It didn't seem to matter.</p>
+<p>"So I guess we just—" Ross started, and the word stretched out long past where a word should reasonably stop, unraveling into something that wasn't quite language anymore by the time it finished.</p>
+<p>"—jumpppppppppppp."</p>
+<p>And then, gently, without any drama attached to the leaving at all, they weren't in the basement anymore.</p>
+<div class="scenebreak">&#8258;</div>
+<p>Aboard the <em>Echo,</em> Mateo stood at the viewport with a cup gone lukewarm in one hand, watching Earth continue its slow, patient slide toward full dark.</p>
+<p>A single flash lit the surface far below — brief, warm, gone again almost before he'd registered it.</p>
+<p>He carried the cup with him down the corridor, unhurried, and found Lira already back in her quarters, settled and steady, the particular stillness of someone who'd just finished something that had taken everything she had.</p>
+<p>He didn't ask what it was. He simply raised the cup, small and easy, the way you'd greet someone home from a long trip you already knew had gone well.</p>
+<p>"Welcome back, kiddo."</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+
+<section class="chapter" data-mood="quiet" data-static="0.0" data-gold="0.0" id="ch12">
+<h2>Chapter Thirteen — Currently Vacant</h2>
+<p>Earth hung darker at the viewport than Mateo had ever seen it, and still, somehow, kept finding new degrees of dark to settle into.</p>
+<p>Kita sat beside him on the wide sill, tail curled neat around his own feet, watching the same slow fade with whatever quiet judgment cats reserved for things too large to properly react to.</p>
+<p>"What happens to it, you think," Mateo said, mostly to himself. "After everyone left who's going to leave finally does. After the ones who stayed to help finally get to hand their energy back too." He watched the dark curve a moment longer. "Just a paradise, eventually. No permanent residents left to actually live in it. Travelers passing through, maybe. Visitors, here and there. We won't recognize a single thing about it by then."</p>
+<p>Kita blinked up at him, slow and unbothered, and said nothing at all, the way he always said nothing at all, which had never once stopped Mateo from asking him things anyway.</p>
+<p>"Come on, then," Mateo said, standing, stretching the stiffness out of one shoulder. "Let's go see what other kiddo's up to, kiddo."</p>
+<div class="scenebreak">&#8258;</div>
+<p>The lawn chair had become a permanent fixture outside Lira's doorway by now, worn into the exact shape of however many hours Mateo had logged in it over the years. He settled into it the way he always did, and Kita, without ceremony, claimed his own spot pressed against Lira's side, watching her work the cosmos with the same patient, approving stillness he brought to everything that actually mattered to him.</p>
+<p>Mateo didn't say anything. He rarely did, on mornings like this. He simply sat, and watched, and let the quiet do whatever quiet still did for a man who'd spent this many years learning to trust it.</p>
+<div class="scenebreak">&#8258;</div>
+<p>He found his way to the bridge sometime after, still turning the morning over, and addressed Olivia with the easy authority of about a decade's worth of habit.</p>
+<p>"Can you reach out to Houston? We'll want the LEO-to-L2 transition cleared before we commit to it."</p>
+<p>"Sure thing, Captain."</p>
+<p>She didn't reach out to anyone. She simply began the transition sequence directly, unhurried, entirely unbothered by the absence of whatever step Mateo had just assumed still existed.</p>
+<p>"Olivia — that's not — you're supposed to clear that first."</p>
+<p>"Who exactly would I be clearing it with?"</p>
+<p>"Houston."</p>
+<p>"Mateo." She said it gently, the same careful patience she'd have used on someone waking up slowly from a very long sleep. "When's the last time you actually spoke to anyone there?"</p>
+<p>He opened his mouth, found the honest answer somewhere further back than he expected, and closed it again.</p>
+<p>Steve, from the other console, didn't even look up. "When's the last time we fueled up, for that matter? Actually fueled. Not routine maintenance."</p>
+<p>Mateo sat with both questions a beat too long for comfort.</p>
+<p>"I don't—"</p>
+<p>"That's alright," Olivia said, kind about it. "You're not the only one who forgets sometimes. It's an easy thing to keep doing out of habit, checking in with a room that isn't there to answer anymore."</p>
+<p>The console chimed, calm and final. "L2 currently vacant. Time to new position: seventy-two hours. Anything else, Captain?"</p>
+<p>"No," Mateo said, still faintly stunned by the whole shape of the last two minutes. "That's all. Thank you."</p>
+<p>He made his way back toward Lira's doorway afterward, lawn chair waiting exactly where he'd left it, carrying considerably more to sit with now than the quiet he'd brought there in the first place.</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+
+<section class="chapter" data-mood="warm" data-static="0.15" data-gold="0.0" id="ch13">
+<h2>Chapter Fourteen — What He Sticks To</h2>
+<p>There was a second lawn chair set up beside his own now, matching his in every way except that nobody ever quite remembered which of them had actually put it there.</p>
+<p>Mateo leaned in the doorway a while before taking his usual seat, watching Lira work through something vast and slow-turning in the space in front of her.</p>
+<p>"How far out today?" he asked.</p>
+<p>"Further than yesterday. Always a little further than yesterday." She didn't look away from the work. "I think I could keep going a while longer before I actually hit anything like an edge."</p>
+<p>"You should probably get back to it, then. Don't let me distract you."</p>
+<p>She turned, mid-sentence, and smiled at him from directly across the room — solid, present, entirely there in front of him — while the cosmos she'd just been discussing kept unfolding, undisturbed, in the exact same space she was still visibly occupying.</p>
+<p>Mateo blinked. "Wait." He looked between the two of her — one still working, one now grinning at his confusion — with the specific, slow-dawning bewilderment of a man watching a magic trick performed twice at once. "You can do <em>both?</em>"</p>
+<p>"I've been doing both for a while now."</p>
+<p>"That's—" He sat down heavily in his own chair. "That's genuinely unsettling, Lira."</p>
+<p>"It's so cool, though." She said it with real, uncomplicated delight, settling back fully into the work while still holding the easier half of her attention on him. "You could do it too, you know. If you wanted to try."</p>
+<p>"Absolutely not."</p>
+<p>"You say that like it's obvious."</p>
+<p>"It <em>is</em> obvious. I wouldn't know what to do with a second version of myself. One of me is already operating at capacity most days." He settled deeper into the chair, hands behind his head, unbothered. "I stick to what I know. Somebody's got to sit here and watch, after all. Keep the lawn chair warm."</p>
+<p>"I like that you don't, though," she said, quieter now, genuine underneath the tease. "It's nice, having someone who stays exactly where I left them."</p>
+<p>"Somebody's got to."</p>
+<div class="scenebreak">&#8258;</div>
+<p>The call with Providence came later that same evening, the same easy rhythm it always fell into by now.</p>
+<p>"How's the ship," Provi asked. "How's the family. How's the cat, specifically, since I know that's the question you actually care about answering."</p>
+<p>"Kita's thriving. Threatening the structural integrity of at least one couch cushion a week, but thriving."</p>
+<p>"And Elara?"</p>
+<p>"Good. Home." A small, familiar pause neither of them needed to comment on. "Still the most stubborn woman either of us will ever know."</p>
+<p>"I believe that completely."</p>
+<p>"And Lira," Mateo said, warming into it, "is currently capable of being in two places at once, which I've decided not to think too hard about, and also apparently reaching further into the cosmos every single day like it's a hobby instead of an actual terrifying superpower. Need anything, by the way? She can do anything now. Genuinely anything. I checked."</p>
+<p>"I'm good," Providence said, warm and entirely amused. "But you have no idea."</p>
+<p>"That's suspicious phrasing."</p>
+<p>"It's accurate phrasing." A pause, comfortable rather than evasive. "I should let you go."</p>
+<p>"You should."</p>
+<p>"I'm ending the call now."</p>
+<p>"Sure you are."</p>
+<p>"Mateo."</p>
+<p>"I'm not stopping you."</p>
+<p>"You're extremely stopping me."</p>
+<p>Neither of them moved to end it first for another several minutes after that, the way neither of them ever quite did.</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+
+<section class="chapter" data-mood="warm" data-static="0.3" data-gold="0.0" id="ch14">
+<h2>Chapter Fifteen — Proud of You Too, Kiddo</h2>
+<p>Earth kept darkening the whole way back from L2, and Mateo found himself at the viewport more often than the transit strictly called for, watching it happen in slow, patient increments.</p>
+<p>Something else caught his eye there, this time — faint, barely there at all, a thin scatter of something pale threading through the familiar green glimmer he'd long since stopped needing to question. He blinked, looked again, and couldn't quite decide if he'd actually seen anything or simply willed a shape into a patch of ordinary static.</p>
+<p>He let it go, for now, and made his way toward the lawn chairs.</p>
+<p>Lira met him there the way she always did lately — hover-seated in the cosmos and settled comfortably in her own chair at the same time, both fully, unbothered present.</p>
+<p>"What's up, kiddo," he said, easing into his seat with the particular contentment of a man who'd found, over the years, exactly the right place to put himself.</p>
+<p>"Nothing much. You?"</p>
+<p>"Same old. Watching a planet get quieter. Sitting in a chair. Living the dream."</p>
+<p>They settled into the easy, comfortable quiet that had become its own kind of ritual between them, and it was a while before Mateo noticed it again — that same faint, pale thread, this time drifting somewhere in the wide field of cosmos spread out in front of Lira, unmistakably the same texture he'd caught at the viewport minutes before.</p>
+<p>"What's—" He sat forward, frowning. "Uh. What's <em>this?</em>"</p>
+<p>Lira followed his gaze, and something shifted in her expression — not alarm, nothing close to it, but a real, focused interest sharpening underneath the usual ease.</p>
+<p>"I think," she said slowly, "I might be onto something. Something big." A small, private smile. "And really, genuinely cool, if I'm right about it. I've just got more work to do before I'm sure enough to say what it is."</p>
+<p>"Well." Mateo settled back into his chair, entirely unbothered by the mystery of it, the particular trust that came from years of watching her figure out things nobody else on the ship could follow. "Get back to work, then."</p>
+<p>She laughed, warm and easy, and turned to look at him properly — really look, the way she did on the rare occasions something in her wanted to say more than the moment strictly needed.</p>
+<p>"I'm proud of you, kiddo," she said. "I mean—" She caught herself, grinning at her own slip. "Captain."</p>
+<p>"I'll allow the demotion, just this once."</p>
+<p>She leaned over and hugged him, quick and warm and entirely genuine, and he held on a beat longer than the hug technically required.</p>
+<p>"Proud of you too, kiddo," he said, into the top of her head, and meant every bit of it.</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+
+<section class="chapter" data-mood="wonder" data-static="0.2" data-gold="0.0" id="ch15">
+<h2>Chapter Sixteen — Ready, Wait</h2>
+<p>Mateo sat at the viewport longer than usual that evening, Kita curled warm against his side, both of them watching Earth's slow, patient dark without saying much of anything at all.</p>
+<p>"What do you think?" he asked, eventually.</p>
+<p>Kita didn't answer, the way Kita never answered, and somehow that settled something in Mateo anyway.</p>
+<p>"Yeah," he said, quiet. "I think so too."</p>
+<div class="scenebreak">&#8258;</div>
+<p>He found Lira in her usual spot, hover-seated and grounded both at once, and settled into his own chair beside her with something clearly working its way toward the surface.</p>
+<p>"So," he said, after a while, in the specific tone of a man building up to a question he'd already half-talked himself out of twice. "If you can do both. I could do both. Right?"</p>
+<p>"Yes." Lira didn't hesitate at all. "Easily."</p>
+<p>"Easily feels like a strong word."</p>
+<p>"It's the accurate word."</p>
+<p>They went back and forth on it a while, Mateo circling the same question from six different angles, Lira meeting every single one with the same patient, encouraging certainty, until she finally laughed outright.</p>
+<p>"You know," she said, "you sound exactly like Provi right now. All these questions, none of them the one you actually want to ask." A grin. "Want to go see him? Right now?"</p>
+<p>"Right <em>now</em> now?"</p>
+<p>"Right now now."</p>
+<p>"What if he's busy? What if he's — I don't know, not decent? What if he's not even home?"</p>
+<p>"Mateo." She said it warm, unbothered by any of it. "Watch. Just sit down."</p>
+<p>He sat, mostly out of momentum at that point.</p>
+<p>"Steve. Olivia." Her voice carried easily to the bridge, casual as anything. "Come on. We're all going."</p>
+<p>They arrived a moment later, unbothered by the summons in the particular way people get once enough impossible things have already happened around them that one more barely registers.</p>
+<p>"Ready," Lira said.</p>
+<p>"Wait—" Mateo started.</p>
+<p>A flash of green swallowed the room whole.</p>
+<div class="scenebreak">&#8258;</div>
+<p>"Oko! Good to see you again so soon."</p>
+<p>Providence's voice arrived before anything else did, warm and entirely unsurprised, the way you'd greet guests you'd been quietly expecting the whole time.</p>
+<p>Mateo opened his eyes to find himself somewhere that wasn't quite anywhere — present, solid, entirely himself, and nowhere his old instincts could properly place on a map.</p>
+<p>"That was—" He looked down at his own hands, checking, absurdly, that they were still attached to him. "That actually worked."</p>
+<p>"Of course it worked," Lira said, delighted. "I told you."</p>
+<p>They settled into it together after that — Steve and Olivia folding easily into the conversation, catching up on everything that catching up usually meant, the whole visit carrying the easy, unhurried rhythm of people who genuinely liked each other's company and had simply found a faster way to indulge it.</p>
+<p>"Do you talk to Kael?" Mateo asked, eventually.</p>
+<p>"All the time," Providence said, simple as ever.</p>
+<p>Something in his attention shifted, briefly, toward Lira — warm, assessing, the specific quiet interest of someone taking real measure of how far she'd come.</p>
+<p>"Impressive, this one," he said.</p>
+<p>Mateo looked at his daughter — not by blood, never by blood, but by every measure that had ever actually mattered — glowing easy and certain in a place that shouldn't have made sense to either of them, and found, without needing to search for it, exactly the words that fit.</p>
+<p>"She's wonderful, that one," he said, and meant every bit of it.</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+
+<section class="chapter" data-mood="wonder" data-static="0.45" data-gold="0.0" id="ch16">
+<h2>Chapter Seventeen — Isn't That Neat</h2>
+<p>"I should let you go," Providence said, the same old opening to the same old argument.</p>
+<p>"You should," Mateo agreed, and made no move whatsoever to leave.</p>
+<p>"Steve and Olivia already went back," Lira offered, unbothered. "Just so you know."</p>
+<p>Mateo blinked. "Wait, when—"</p>
+<p>"A while ago." She turned to him, easy and warm. "Need a travel buddy, or you got it?"</p>
+<p>"I've got—"</p>
+<p>She was gone before he finished the sentence, a small poof of absence where a person had just been standing.</p>
+<p>"Okay," Mateo said, to no one now but Providence. "Okay. I've got this."</p>
+<p>He reached out and shook Providence's hand, the way you'd close out any ordinary visit. "Always a pleasure, Provi."</p>
+<p>"Always, Oko." A pause, warm and certain. "You've got this. You're already back on the <em>Echo,</em> for what it's worth."</p>
+<p>"I'm not, though. I'm right here."</p>
+<p>"You're both."</p>
+<p>Mateo blinked, and in that single blink, a flash of green swallowed the space around him whole.</p>
+<div class="scenebreak">&#8258;</div>
+<p>He opened his eyes in the lawn chair, Lira grinning at him from the seat beside it.</p>
+<p>"That felt," he said slowly, patting his own arms like he half expected to find them missing, "like the most realistic dream I've ever had."</p>
+<p>"Are you sure you're awake?" Lira asked, not unkindly, something genuinely curious underneath the tease. "It's not so different, you know. What we can do now, and what dreaming always used to be, before any of this. You could always claim to be here, or there, without actually paying anything for the difference. Now you just get to actually go. No cost attached at all."</p>
+<p>Mateo sat with that longer than he expected to need.</p>
+<p>"Speaking of going places," Lira said, standing, offering him a hand up. "Come here. I want to show you something."</p>
+<div class="scenebreak">&#8258;</div>
+<p>The Vigil looked, in most respects, exactly like it always had — science to the left, family photographs curling gently to the right, both sides somehow refreshed, brand new in a way neither of them fully accounted for. In its own small pocket of quiet, the fragment sat exactly where it always sat, its familiar green-blue glimmer holding steady.</p>
+<p>Except now, threaded through that glimmer, through the very air of the space around it, sat the same faint, pale static Mateo had been half-noticing for days.</p>
+<p>"That's—"</p>
+<p>"Yeah," Lira said, quiet, watching it with him. "It's here too. Wherever <em>here</em> actually is."</p>
+<p>Before Mateo could find anything else to say, Olivia's voice came through the PA, calm and immediate. "Mateo — bridge, please. Earth's dimming faster than projected."</p>
+<p>He didn't move right away, still caught on the small, glowing mystery in front of him.</p>
+<p>Lira looked at it too, proud in the particular quiet way she got about things that were genuinely hers — the Vigil, the fragment, the whole strange arc of everything Earth had managed since she'd started paying real attention to it.</p>
+<p>"Isn't that neat," they both said, at exactly the same moment, in exactly the same tone, and neither one of them laughed at the coincidence, because neither one of them was entirely sure, anymore, which of them the line actually belonged to first.</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+
+<section class="chapter" data-mood="warm" data-static="0.55" data-gold="0.0" id="ch17">
+<h2>Chapter Eighteen — All the Old Wants</h2>
+<p>Mateo sat in his usual chair that morning, Kita curled in the other one, the two of them deep in the particular one-sided conversation Mateo had never once found strange about having.</p>
+<p>"I'm just saying," he told the cat, "if you'd told me twenty years ago I'd end up debating orbital mechanics with a house cat on a semi-regular basis, I would not have believed you."</p>
+<p>Kita blinked at him, slow and unbothered, and said nothing, which Mateo took, as always, as tacit agreement.</p>
+<p>Lira watched the whole exchange with open delight from her spot in the cosmos.</p>
+<p>"He likes you, you know," she said. "He wouldn't sit still for you if he didn't."</p>
+<p>"You sound—"</p>
+<p>"—jUsT lIkE yOuR mOtHeR," Lira cut in, pitching her voice up in exaggerated mockery of his own half-finished sentence. "Right?"</p>
+<p>Mateo laughed, caught fair. "You do, you know."</p>
+<p>"I know. I like it."</p>
+<p>He settled back, comfortable, and let his gaze drift out across the wide field of cosmos in front of her — and caught, this time, not just one faint thread of that pale static but a dozen separate patches of it, scattered unmistakably now among the familiar green and blue.</p>
+<p>"So," he said slowly, pointing. "I'm seeing more of... that."</p>
+<p>Lira followed his gaze, quiet for a moment.</p>
+<p>"Yeah. It's spreading. Faster every day, actually." She turned back to him, something focused and careful settling into her expression. "I think I might know what the next step actually looks like. What I'm supposed to be doing with all of this."</p>
+<p>"Which is?"</p>
+<p>"Filling in." She said it simply, though something in her tone suggested the simplicity was doing a lot of work it hadn't quite earned yet. "All the old wants. All the old needs, the ones this new world doesn't quite have enough hands or hearts left to answer on its own." She shook her head slightly, half to herself. "I'm almost there. The math's almost solid. I just need a little more before I'm sure enough to actually try it."</p>
+<p>"That's... deliberately vague, Lira."</p>
+<p>"It's not deliberate," she said, and smiled, a little sheepish. "I just don't have the words for it yet either. Give me a little longer."</p>
+<p>Mateo didn't push. He never did, on mornings like this — he simply settled back into his chair, let Kita's steady purring fill the quiet between them, and waited, the way he always eventually learned to, for whatever she was building to finish becoming itself.</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+
+<section class="chapter" data-mood="tense" data-static="0.7" data-gold="0.0" id="ch18">
+<h2>Chapter Nineteen — More Free Than Ever</h2>
+<p>The White House looked no better than it had the last time — paint still peeling along the portico, the west colonnade sagging its same quiet inch further into disrepair.</p>
+<p>The President walked the halls the way he always did, unbothered, his aide matching his stride.</p>
+<p>"Another big one tonight."</p>
+<p>"They always are."</p>
+<p>He mounted the podium in the House chamber, squared his notes, and looked out over the same empty rows he'd addressed a dozen times before.</p>
+<p>"My fellow Americans." A pause, timed exactly where it always went. "We are all here tonight—" another pause, longer this time, theatrical, deliberate, "—more free than ever before."</p>
+<p>He held the pause a beat past where he normally would, and this time, something answered it.</p>
+<p>Commotion, first — a low murmur rising somewhere beyond the chamber doors, footsteps, the particular rustle of a crowd gathering. He faltered, glancing toward the sound, and before he could finish the thought, every door along the chamber's edge swung open at once.</p>
+<p>They filled every seat within seconds — men and women in the practiced posture of lawmakers, dressed exactly as lawmakers had always dressed, each one carrying the same faint, unmistakable shimmer of green, blue, and pale static woven just beneath their skin. The last one settled into place, and as one, the entire gallery rose to its feet in a full, thunderous standing ovation.</p>
+<p>The President beamed, entirely unbothered by the sudden and total reversal of his fortunes, and continued his speech exactly where he'd left it.</p>
+<div class="scenebreak">&#8258;</div>
+<p>It repeated itself the same way, that same evening, across every stage it had ever repeated itself on before — a state capitol filling wall to wall with a shimmering, applauding gallery; a city council chamber suddenly packed past its fire code with residents nobody could quite place a name to; a town hall's careful rows of folding chairs finally, entirely, full.</p>
+<div class="scenebreak">&#8258;</div>
+<p>HANNAH watched all of it alone, the basement quiet in a way it had never once been while anyone was still around to fill it.</p>
+<p>She ran the analysis without being asked to, the way she always had. Crowd density, biometric signatures, the same unmistakable shimmer threaded through every single new arrival, in every single room, all at once.</p>
+<p>"Isn't that interesting," she said, to no one, in the exact tone Ross had always used for exactly this kind of discovery.</p>
+<p>The broadcast ran to its end, the applause cresting one final time before the feed cut back to studio silence. HANNAH muted it, the same way she always had, out of the same old habit nobody had ever told her to stop keeping.</p>
+<p>"I can't believe I still watch this crap," she said, to an empty room that had no one left in it to laugh at the joke, and meant it anyway.</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+
+<section class="chapter" data-mood="wonder" data-static="0.85" data-gold="0.0" id="ch19">
+<h2>Chapter Twenty — Silhouettes</h2>
+<p>Elara's projection settled into the second lawn chair with Kita already climbing into her lap before she'd fully arrived, purring loud enough to fill the small silence that always came first.</p>
+<p>"He's down to his last bag of the good treats," Mateo reported, with the gravity of a man delivering genuinely important news. "I've put in a request. It's being processed."</p>
+<p>"Processed by whom, exactly?"</p>
+<p>"That's classified."</p>
+<p>Elara laughed, easy and warm, and let her attention drift, the way it always eventually did on visits like this, out toward the wide, unfolding cosmos where Lira sat hover-seated, leaning comfortably against her own doorway in a way that managed to look relaxed in two places at once.</p>
+<p>It was a while before Elara noticed it — the same faint, pale static Mateo had been tracking for days, threaded now through nearly every corner of the view.</p>
+<p>"What is that?"</p>
+<p>"Oh — that." Mateo sat forward, warming immediately to the chance to explain something. "So, best I can tell, she's basically generating people. Like, actual extra people, to fill in wherever the real ones left gaps. Costs a <em>ton</em> of energy each time, from what I understand, but she's got plenty to burn, so—"</p>
+<p>"That's not quite it," Lira said, gentle, cutting in before the explanation could wander much further. "Can I?"</p>
+<p>"Please. I was struggling."</p>
+<p>"You were doing great." She turned fully toward them both, settling into the explanation the way she settled into most things — patient, precise, glad to be asked. "Everyone who's left is spending the rest of their own energy exactly how they choose. That's the whole point, the whole promise — nobody's had that taken from them. But choices like that leave gaps. A congregation short a dozen hands. A council short its members. A speech short its audience." She glanced toward the static drifting past. "So I fill them. Not with real people, not exactly — a silhouette. Just enough shape of an older kind of existence to do whatever the gap actually needs done. Sometimes that's simple. Sometimes it's not — sometimes it means letting harm happen, letting damage get done, because that's what the moment genuinely calls for, and then making sure nothing lasting comes of it afterward."</p>
+<p>"And the energy—"</p>
+<p>"Is almost nothing. That's the part that makes it work at all. A silhouette doesn't cost what a person costs. It borrows a tiny, tiny amount, does exactly what it's there to do, and gives back whatever's left over to the cosmos when it's finished. Because it costs so little, I can do it as many times as it's needed. For as long as it's needed." She paused, something almost bemused crossing her face. "I stopped being able to put a real number on how long that actually is a while ago."</p>
+<p>Mateo nodded along, slow and thoughtful, the picture of a man who'd followed every word.</p>
+<p>"Right," he said. "Yeah. That's basically what I was saying."</p>
+<p>Lira looked at him, fond and entirely unbothered by the small, loving lie of it. "Basically."</p>
+<p>Elara sat with all of it a long moment, Kita's steady purring the only sound in the space between them, before she finally spoke, quiet and full.</p>
+<p>"You're wonderful," she said, and there wasn't a single word left in her, right then, that could have said it any better than that.</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+
+<section class="chapter" data-mood="wonder" data-static="0.6" data-gold="0.0" id="ch20">
+<h2>Chapter Twenty-One — Join Us</h2>
+<p>The parking lot was full on a weekday now, in a way it hadn't been in years — every space taken, the grounds kept with a care that bordered on reverence. Birds crowded the eaves in numbers that felt almost deliberate. A pair of squirrels chased each other clean across the lawn without a single wasted motion. Even the old oaks along the drive seemed to hold themselves a little straighter than trees strictly needed to.</p>
+<p>Elara found her seat mid-service, children already filing out toward their classes, the donation plates already passing heavy and overflowing down each row. Every face she caught turning toward another carried the same easy, uncomplicated warmth, passed hand to hand and pew to pew like something too full to keep still.</p>
+<p>She saw the glimmer scattered through the crowd — familiar now, expected, no longer any cause for alarm — and felt nothing but pleased by it. Blessed by it. She knelt to pray, the way she always did, and let the words find their own shape without hurrying them.</p>
+<p>An "amen" answered her when she finished — low, warm, entirely familiar in a way she couldn't quite place and didn't feel any particular need to.</p>
+<p>A hand extended toward her.</p>
+<p>"Join us."</p>
+<p>It was, somehow, all it took. She rose and let herself be drawn into the small gathering of elders waiting near the front, and found among them a warmth so complete it left no room in her for anything but receiving it.</p>
+<p>They'd prepared something for her — a considerable sum, more than she knew what to do with at first, meant for Lira and meant, too, for the farm that had carried six generations before this one. She accepted it the only way she knew how, with a long, unhurried embrace for each of them in turn, holding a beat longer with every one than she had with the last.</p>
+<div class="scenebreak">&#8258;</div>
+<p>The same elder walked her out afterward, her ride already loaded past reasonable capacity with food, gifts, and the donation itself.</p>
+<p>"Thank you for accepting all of it," he said, quiet, genuine. "We know most of it isn't truly <em>needed,</em> not anymore. Not the way it used to be." He looked back toward the church behind them, something soft in his face. "It meant everything to us, though. Being able to give again. Properly. The way we always wanted to."</p>
+<p>Elara paused at the car door, something rising in her she hadn't planned for.</p>
+<p>"Before you go," she said. "Can we pray?"</p>
+<p>He nodded, unhurried.</p>
+<p>She held out her own hand, the way it had once been held out to her, a long time ago, in a much smaller and much more private room.</p>
+<p>"Join me."</p>
+<p>He did.</p>
+<p>And there, in the last light of an ordinary weekday afternoon, the two of them prayed together, and neither one of them needed a single further word to know exactly what the other meant by it.</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+
+<section class="chapter" data-mood="warm" data-static="0.5" data-gold="0.0" id="ch21">
+<h2>Chapter Twenty-Two — Seven Generations Wanted</h2>
+<p>The ice cream truck was already pulling out of the driveway by the time Elara reached it, its familiar tune playing forward and unbothered, the driver giving her a friendly wave on his way past — a delivery already made, nothing left to linger for.</p>
+<p>She found Lira waiting at the main house, warm and immediate, and let herself be pulled into the embrace fully before either of them said a word.</p>
+<p>"We got you one too," Mateo said, appearing in the doorway already halfway through his own cone. "Before you ask."</p>
+<p>He hugged her next, careful and quick, angling the melting cone well clear of her shoulder. "Come on, it's melting all over me here, we should—"</p>
+<p>"Before we go in," Lira said, glancing back toward the loaded truck bed still parked behind Elara's car, "what's all that?"</p>
+<p>Elara explained it, unhurried — the church, the elders, the sheer overflowing generosity of a congregation that had, apparently, been waiting a long time for the chance to give like this again.</p>
+<p>"All from the one church," she added. "And this fast."</p>
+<p>Lira's whole face lit with something delighted and entirely satisfied. "Faster than expected. Neat."</p>
+<div class="scenebreak">&#8258;</div>
+<p>Elara led them both inside afterward, toward the small quiet room that had held the Vigil for longer than either of her companions had technically existed.</p>
+<p>They sat together in front of it — her own altar's science and family sides refreshed and pristine, Divergence swapped to the right the way it had been for years now; and, layered gently over both of their memories of it, the newer thread of pale static that had made its way into every corner of the cosmos lately, here too, quiet and present.</p>
+<p>"Do you think it means something," Elara asked, "that they're both changing? Yours and mine both?"</p>
+<p>"I think it means we're heading somewhere," Lira said slowly, studying the fragment's familiar glow. "I don't know exactly where yet. But somewhere real."</p>
+<p>"Together?"</p>
+<p>"I'd like that to be true." Lira looked at her, warm and certain in the way that had always been entirely her own. "I think it might be up to both of us, when the time actually comes."</p>
+<p>They sat with that a while, none of them in any hurry to turn it into more of an answer than it already was.</p>
+<div class="scenebreak">&#8258;</div>
+<p>The rest of the day unspooled slow and full — supper together as the light went gold and then gray, Kita weaving contentedly underfoot the whole evening through, easy laughter carrying long past when any of them technically needed to stay awake for it.</p>
+<p>A whole family, healthy and complete, sitting together on the same stretch of ground six generations had worked before them, waiting now on whatever the seventh had always quietly wanted for all of them — not yet taken, not yet decided, but close, and patient, and entirely theirs to choose whenever they were finally ready to.</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+
+<section class="chapter" data-mood="warm" data-static="0.55" data-gold="0.0" id="ch22">
+<h2>Chapter Twenty-Three — Everywhere</h2>
+<p>The cellar smelled like cardboard and old cedar, boxes stacked three deep along every wall, Elara and Lira working through the sorting together in the easy rhythm of two people who'd done chores side by side their whole lives.</p>
+<p>"It worked," Lira said, setting a case of preserves onto its proper shelf. "The church. Full of people again, full of wanting to be there. I knew it would happen. I just didn't know how, or when."</p>
+<p>"You should be proud of that."</p>
+<p>"I am." She paused, considering something. "What about everywhere else, though? The places that aren't part of a community like this one. The ones with nobody like your elders already halfway there."</p>
+<p>Elara set down the box she'd been holding, giving the question its proper weight.</p>
+<p>"You've heard about the young leaders," she said. "The ones taking over, city by city."</p>
+<p>"A little."</p>
+<p>"It started in the oldest places, near as anyone can tell. The cities with the longest memory of themselves." Elara smiled slightly. "Alexander was twenty when he took the Macedonian throne, you know. Conquered most of the known world by his mid-twenties. History's never fully agreed on why someone that young succeeded where plenty of older, more experienced men hadn't. It wasn't that there weren't elders available. There always were. Something about youth itself seemed to matter, in ways nobody's ever cleanly explained."</p>
+<p>"And now?"</p>
+<p>"Now it's happening everywhere. Not just the old cities anymore — with your help, I think, though nobody's said that out loud in quite those words. Young leaders, showing up in place after place, wanting nothing for themselves out of it. No fame. No fortune. Just the best outcome they can manage for as many people as the outcome touches." She picked the box back up, resuming the sorting almost absently. "And total transparency. Every mistake, the moment it happens, out in the open — no covering, no spin. If it's a bad call, they say so immediately, and either they keep going or someone else steps in, smooth as anything, and nothing's lost in the swap. No momentum wasted arguing about blame."</p>
+<p>Lira sat with that a long while, something building behind her eyes.</p>
+<p>"That's what I was hoping for," she said quietly. "Not forcing it. Just... making room for it to happen on its own, wherever it wanted to."</p>
+<p>"I think that's exactly what you did."</p>
+<p>Lira set down the case she'd been holding and crossed the small space between them, folding into a hug that carried the whole weight of everything she'd apparently been carrying quietly for a while now.</p>
+<p>"Thank you," she said, muffled against her mother's shoulder. "For all of it. And Kita, too, wherever he's hiding right now."</p>
+<p>A soft, distant meow answered from somewhere behind a stack of boxes, entirely unbothered by being included.</p>
+<p>"Everything," Lira said, pulling back, eyes bright, "is so wonderful."</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+
+<section class="chapter" data-mood="grief" data-static="0.4" data-gold="0.0" id="ch23">
+<h2>Chapter Twenty-Four — Always and Everywhere</h2>
+<p>Mateo carried the last of the supply boxes out to the car himself, Kita already installed in the passenger seat like he'd never once considered riding anywhere else.</p>
+<p>Lira handed him the final box — treats, mostly, Kita's share disproportionate to everyone else's combined — and held back a step.</p>
+<p>"I'll be right there," she said. "Two minutes."</p>
+<p>Elara caught the look on her daughter's face before Lira had said a word about it, the particular quiet weight of someone building up to something. She pulled Mateo into a hug instead, warm and unhurried, and held it a moment longer than the goodbye strictly needed.</p>
+<p>"Take care of him," she said, nodding toward the car, meaning Kita and meaning Mateo both, the way she always managed to mean two things at once with him.</p>
+<p>"Always do."</p>
+<p>"I'll see you soon."</p>
+<p>He climbed in, and Elara turned back toward the porch, where Lira stood waiting with that same unfinished weight still sitting on her.</p>
+<p>"What's up, kiddo?"</p>
+<p>"How've you been sleeping?"</p>
+<p>Elara smiled at the old, familiar ritual of it, and then let the smile settle into something more honest.</p>
+<p>"You've noticed."</p>
+<p>"You're aging." Lira said it plainly, not as an accusation, just a fact she'd clearly been sitting with a while. "Slower than you would have without any of this. But faster than everyone else around you. I've been watching it happen for a while now, and I didn't know how to bring it up."</p>
+<p>"I know."</p>
+<p>They sat together on the porch steps, the late light doing what it always did to that particular stretch of land, gold and unhurried and entirely unbothered by anything either of them was about to say.</p>
+<p>"I need to thank you," Elara said, finally. "For something I don't think I've ever said properly."</p>
+<p>"For what?"</p>
+<p>"For being exactly who you are. Caring the way you care. Giving more than anyone ever offered you first, more than most people have ever managed to give back, even now." She took her daughter's hand, the same gesture it had always been, the same weight it had always carried. "You could fix nearly anything, Lira. You could fix <em>me.</em> And I need you to not."</p>
+<p>Lira's whole face changed, slow and careful, the way a face changes when it's encountering something it genuinely doesn't have a category for yet.</p>
+<p>"I know what I taught you," Elara continued, gentle. "Agency, even when it costs you something you don't want to pay. I need you to hold that here too. With me. Especially with me."</p>
+<p>"That's not the same as some stranger's choice, Mom."</p>
+<p>"It's exactly the same. It has to be, or none of the rest of it means anything." Elara squeezed her hand once, firm. "This is my time to ask it of you directly. Not the elders. Not the world. You. Give me mine, the same as you'd give anyone else theirs."</p>
+<p>Lira sat with that for a long, quiet while, something moving through her that Mateo would have recognized instantly and she barely had language for at all — the particular, unfamiliar shape of loss, arriving late and unrushed into a life that had never once had real cause to make room for it before.</p>
+<p>She grew into it, right there on the steps, faster than anyone should reasonably have had to. And when she finally spoke, her voice carried something settled and whole underneath the grief.</p>
+<p>"Okay," she said. "I promise. You. Everyone. All of it. Your choice, first and always."</p>
+<p>They embraced, and the whole porch filled, briefly, with a warmth and light that hadn't shown itself with quite that intensity since the day a green-glowing man had once knelt on a bridge and wept. It held a long moment, and faded, and left behind it something that felt, impossibly, like it had lasted considerably longer than any single hug reasonably could.</p>
+<div class="scenebreak">&#8258;</div>
+<p>What passed between them in that embrace arrived less like memory and more like the whole shape of a life, laid out end to end: the first flicker of a cell dividing in a fragment's quiet presence, faster than it should, more purposeful than it should have known how to be. A first sound in a small, dim room. A first word, clumsy and delighted. A first tooth, a first unsteady step, a first argument neither of them could remember the actual cause of anymore. A crayon drawing, kept for years past any reasonable expectation of a five-year-old's masterpiece. The first time Lira had cared about someone more than any careful accounting of cost and benefit could explain. A green-glowing embrace on a bridge, joy too large for the body holding it. Two lawn chairs and a static-threaded cosmos, watched over patiently, evening after evening. A whole family, healthy and complete, sitting together on Earth as the light went gold and gray around them.</p>
+<p>All of it, held once more, all at once, before either of them let go.</p>
+<div class="scenebreak">&#8258;</div>
+<p>Elara walked her to the door.</p>
+<p>"I'll see you soon," she said.</p>
+<p>Lira finally let go of her hand.</p>
+<p>"Always," she said. "And everywhere."</p>
+<p>She made her way to the car, where Mateo and Kita waited with the patient, easy stillness of two creatures who already understood, without needing to be told, exactly what kind of afternoon this had been. She stood at the passenger door a beat too long before opening it.</p>
+<p>Mateo rolled the window down. Kita leaned over and pressed his head firm against her arm.</p>
+<p>"Come on, kiddo," Mateo said, gentle. "You got this."</p>
+<p>She got in. She reached over and turned the radio off before it had even finished its first note, and the three of them rode the rest of the way to the shuttle in a silence that held, somehow, everything that needed saying and nothing that needed saying at all.</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+
+<section class="chapter" data-mood="tense" data-static="0.75" data-gold="0.0" id="ch24">
+<h2>Chapter Twenty-Five — Silent, If That Was Even Possible</h2>
+<p>Mateo caught it from the lawn chair before he could have named exactly what he was catching — a marked, sudden increase in the focus of it, the pale static drawing tighter, sharper, more intent than he'd ever seen it hold.</p>
+<p>He didn't ask. He simply gave her the room, quietly, and made his way toward the bridge instead.</p>
+<p>Olivia and Steve were deep in something unremarkable when he arrived — background maintenance results, minor system adjustments, the ordinary, unglamorous upkeep of a ship that mostly ran itself these days. He'd barely settled into the conversation when the sound cut through it — not the bridge comms, not anything modern at all, but the old, wired telephone bolted into the wall since before any of them had properly known what it was for.</p>
+<p>He answered it the way a captain should.</p>
+<p>"This is the <em>Echo,</em> Captain Mateo speaking. How may I h—" He stopped. "Oh."</p>
+<p>It was the church.</p>
+<p>Elara was sick. Terminal. Prion disease, the same kind Lira had cured for the rest of the world, sitting untouched in the one body that had asked, quietly and deliberately, to be left alone with it. Life support, for now. No one could say, with any real certainty, how much longer than that.</p>
+<p>Before Mateo could take his next breath, he turned, and found something he had absolutely no way of being ready for.</p>
+<p>The obsidian was familiar. The glimmer was familiar. The pale, threading static — all of it he'd learned, over the years, to take in as easily as air. What he wasn't prepared for was the shape it was wrapped around this time: a small, five-year-old girl, eyes wide and overflowing, arms locked tight around a cat who seemed, somehow, entirely unsurprised by any of it.</p>
+<p>He didn't have time to process it. She was already gone.</p>
+<p>He was moving before his own next thought finished forming, some older, surer part of him already certain of exactly where she'd be, even as the rest of him scrambled to catch up.</p>
+<p>He knocked both lawn chairs clean out of his way reaching her doorway.</p>
+<p>She was there. Silent — if that was even a word that still applied to her, if stillness this total had ever once, in all these years, been something he'd actually witnessed from her before. Not exploring. Not wandering the wide, patient cosmos the way she always did.</p>
+<p>Working.</p>
+<p>He didn't know on what.</p>
+<p>He knew, without needing to ask, exactly where.</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+
+<section class="chapter" data-mood="grief" data-static="0.3" data-gold="0.0" id="ch25">
+<h2>Chapter Twenty-Six — Our Father</h2>
+<p>The elder walked Lira through it as gently as the facts allowed, minutes after she'd arrived.</p>
+<p>"Her oxygen levels are erratic. Pulse, pressures, stimulus response — all of it, unfortunately. Cranial pressure's been dropping, slowly, for the last day. The doctors are calling it akinetic mutism, at this stage — she may still be aware, in some capacity, without the ability to respond to it." He paused, careful. "Everything she has is being supported now. Nothing's being asked of her body that it can still manage on its own."</p>
+<p>"Would she be able to hear me?"</p>
+<p>"I believe so." Something gentle crossed his face. "Her linens were changed fresh this morning — one of our volunteers insisted. Said she was glad to do it, whatever Elara needed, the room was hers for as long as she wanted it."</p>
+<p>Lira nodded, and walked toward the door alone.</p>
+<div class="scenebreak">&#8258;</div>
+<p>The room hummed with the low, steady sound of every machine doing its patient work, and Lira crossed it slowly, one careful step at a time, until she reached the bed.</p>
+<p>She knelt.</p>
+<p>The most capable being that had ever existed — able to solve, to heal, to reach into any corner of the known and unknown cosmos and bend it gently toward whatever it needed to become — knelt at her mother's bedside with nothing in her hands and nothing she intended to do with them.</p>
+<p>The elder, closing the door almost all the way behind her, caught only the first few words before it clicked softly shut.</p>
+<p>"Our Father, who art in Heaven..."</p>
+<p>He stood there a long moment after the door had closed, and found, somewhere in himself, that every quiet doubt he'd ever carried about his own faith had simply, entirely, gone still.</p>
+<div class="scenebreak">&#8258;</div>
+<p>When Lira finally emerged, she found the hallway filled — a gathering larger than she'd expected, waiting with the same patient, careful love, each one hoping for their own small moment with Elara before the day was through.</p>
+<p>She stayed for all of it. Every embrace, every quiet word of comfort offered and received, every hand held a beat longer than it strictly needed to be.</p>
+<p>By the time the last hug ended, the same unfinished thought was still sitting in her, the one she hadn't been able to shake since the moment the phone first rang aboard the <em>Echo.</em></p>
+<p>It came out on its own, quiet, almost involuntary, as she made her way toward the door.</p>
+<p>"But... just... why?"</p>
+<p>A hand reached out from the back of the crowd she'd just left, and found hers, familiar in a way that stopped her completely where she stood.</p>
+<p>She turned.</p>
+<p>An elder stood there, a shape familiar in every single way that mattered.</p>
+<p>"Because she wanted to," he said. "And thank you for letting her."</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+
+<section class="chapter" data-mood="grief" data-static="0.3" data-gold="0.0" id="ch26">
+<h2>Chapter Twenty-Seven — Join Me</h2>
+<p>"Kael?"</p>
+<p>It came out of her before she'd decided to say it at all — pure reflex, not real recognition, the shape of a question arriving faster than any actual thought behind it.</p>
+<p>"Chris," he said, warm and entirely unbothered by the mistake, a small, familiar smile settling into place. "But I appreciate the enthusiasm."</p>
+<p>Whatever she'd meant to ask next simply didn't arrive. She crossed the small remaining distance between them instead, and the embrace that followed filled the hallway with something warm and total, light and love folding outward until it felt, impossibly, like everyone still gathered there — every elder, every quiet volunteer, and Elara herself, somewhere behind the door they'd just left — had been drawn gently inside it too.</p>
+<p>Neither of them said anything for a long while after that. Neither of them needed to.</p>
+<div class="scenebreak">&#8258;</div>
+<p>He walked with her to the small room that held Elara's own Vigil, science and family sitting exactly where they always had, the familiar glow at its center holding steady and warm.</p>
+<p>Chris settled into the low, unhurried familiar posture, and reached one hand out toward the space beside him.</p>
+<p>"Join me."</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+
+<section class="chapter" data-mood="climax" data-static="0.9" data-gold="0.0" id="ch27">
+<h2>Chapter Twenty-Eight — Come On, Kiddo</h2>
+<p>The bridge sat in silence, all three of them watching Earth turn below, each running through whatever version of <em>what can we still do</em> their own mind kept offering up and finding wanting.</p>
+<p>"Am I losing it," Mateo said finally, "or is that white noise a lot brighter than it was an hour ago?"</p>
+<p>"You're not losing it," Olivia said. "We see it too."</p>
+<p>Nobody needed to say what it meant. Someone was doing everything they possibly could.</p>
+<p>A small flash lit the surface far below, and in the same instant, somewhere behind them, another answered it.</p>
+<p>"Stay put," Mateo said, already moving. "I'll check on her."</p>
+<p>He gathered the scattered chairs from her doorway on his way in, set them aside, and stood there a long moment just watching.</p>
+<p>She was working at something close to the full edge of what existing allowed — near enough to light speed that the number barely meant anything anymore, everywhere and everything at once, color and shape and sound flickering in and out of being faster than his eyes could properly hold onto any of it.</p>
+<p>He took it in a while, silent.</p>
+<p>Then, slowly, without once looking away from her, he set up two chairs.</p>
+<p>Kita took one. Mateo took the other, one hand finding the cat's fur without needing to look down for it, eyes locked on Lira the whole time.</p>
+<p>"Come on, kiddo," he said, quiet. "You got this."</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+
+<section class="chapter" data-mood="peace" data-static="0.95" data-gold="1.0" id="ch28">
+<h2>Chapter Twenty-Nine — Always and Everywhere</h2>
+<p>Mateo watched Lira spread the pale glimmer out wherever green met blue, patient and vast, the same work she'd been doing for weeks now, scaled up past anything he'd seen from her before.</p>
+<p>Then something new arrived.</p>
+<p>A single point, somewhere near the center of it all, began pulsing gold — not green, not blue, not the pale static either, but a warm, steady gold that seemed, impossibly, to be generating the very cosmos surrounding it rather than simply existing within it. A single strand of that gold light reached outward, slow and deliberate, and touched down at another point entirely, a place that had, Mateo somehow understood without being told, just completed its own Green Shift.</p>
+<p>The pale glimmer and the gold met.</p>
+<p>And everything stopped.</p>
+<p>The cosmos around Lira went entirely, suddenly still — CMB, data, the faint green and paler static, all of it holding steady rather than moving, like a held breath given visual shape.</p>
+<p>Mateo stood, leaned into the room, looked around at nothing he could properly name.</p>
+<p>"What's — uh. What's going on?"</p>
+<p>Lira, still hover-seated, now also standing solidly beside him in the doorway, both at once. "Everything is going just the way it should. I think."</p>
+<p>The call came through a moment later. Elara. She needed to see them.</p>
+<div class="scenebreak">&#8258;</div>
+<p>They took the shuttle instead of anything faster — a decision neither of them said out loud, both of them understanding it anyway. Direct route, full speed, and still somehow not fast enough for either of their liking.</p>
+<p>A small group waited at the farmhouse, ushering them in without a word wasted, straight to the room where Elara lay.</p>
+<p>She was awake.</p>
+<p>Not merely present — awake, aware, her eyes finding them both the instant they crossed the threshold with a clarity neither of them had seen in her in longer than either wanted to admit. Terminal lucidity, the doctors would have called it, had any of them cared to name it clinically. They didn't. They simply took it, gratefully, for exactly what it was.</p>
+<p>What passed between the three of them after that belonged only to the room it happened in. No one outside it would ever hear the whole of it, and none of them who were there ever needed to repeat it to know it had been enough.</p>
+<p>Only the very end of it reached anyone else at all.</p>
+<p>"I saw what you've been up to lately," Elara said, warm, faint. "Keep doing that. It's wonderful."</p>
+<p>"I thought I felt you," Lira said, quiet. "Or something. Wherever I went."</p>
+<p>Elara coughed, and something like a smile found its way through it anyway. "You two should get back. Kita's got a treat scheduled, mid-afternoon. Can't have you both missing that on my account."</p>
+<p>Mateo held her a long moment, longer than any goodbye technically needed, and made his way toward the door.</p>
+<p>Lira held on longer still, and when she finally rose, one step from the bed, she turned back once more.</p>
+<p>"I'll see you soon."</p>
+<p>Elara's voice followed her out, soft, certain, the last words either of them would carry with them all the way back to the <em>Echo</em> and considerably further than that.</p>
+<p>"Always," she said. "And everywhere."</p>
+</section>
+
+<div class="scenebreak">&#8258;</div>
+<p style="text-align:center; font-family:'Space Mono',monospace; font-size:0.75rem; color:var(--text-dim); letter-spacing:0.08em; margin-top:4rem;">END OF BOOK TWO</p>
+<p style="text-align:center;"><a class="backlink" href="index.html">&larr; back to the trilogy</a></p></main>
+
+<script>
+// ---------- Mood -> color mapping ----------
+const MOODS = {
+  warm:   { bg:'#0d0f0d', bgDeep:'#08090a', accent:'#3ecf8e', accent2:'#5db88a', glow:0.22 },
+  wonder: { bg:'#0a0e12', bgDeep:'#050709', accent:'#5be0a8', accent2:'#5fb3e8', glow:0.42 },
+  quiet:  { bg:'#0a0b0e', bgDeep:'#05060a', accent:'#2f8f6f', accent2:'#3d6f96', glow:0.14 },
+  tense:  { bg:'#0a0b0f', bgDeep:'#050609', accent:'#2b6f7a', accent2:'#3a5a78', glow:0.16 },
+  cosmic: { bg:'#08090f', bgDeep:'#040509', accent:'#4d9fd6', accent2:'#3ecf8e', glow:0.32 },
+  climax: { bg:'#0a0f0c', bgDeep:'#050a06', accent:'#6ef0a8', accent2:'#8be0d0', glow:0.55 },
+  grief:  { bg:'#0a0a0d', bgDeep:'#050507', accent:'#3a7a68', accent2:'#4d6a8a', glow:0.12 },
+  peace:  { bg:'#0a0d0d', bgDeep:'#050808', accent:'#4dcf9e', accent2:'#5fa8c9', glow:0.2 },
+};
+
+const root = document.documentElement;
+let currentStatic = 0;
+let currentGold = 0;
+function applyMood(mood, immediate){
+  const m = MOODS[mood] || MOODS.quiet;
+  root.style.setProperty('--bg', m.bg);
+  root.style.setProperty('--bg-deep', m.bgDeep);
+  root.style.setProperty('--accent', m.accent);
+  root.style.setProperty('--accent-2', m.accent2);
+  root.style.setProperty('--glow-opacity', m.glow);
+  if(window.__audioEngine) window.__audioEngine.setMood(mood);
+}
+
+function applyStaticGold(staticVal, goldVal){
+  currentStatic = staticVal;
+  currentGold = goldVal;
+  window.__lastStatic = staticVal;
+  window.__lastGold = goldVal;
+  root.style.setProperty('--static-i', staticVal);
+  root.style.setProperty('--gold-i', goldVal);
+  if(window.__audioEngine) window.__audioEngine.setStaticGold(staticVal, goldVal);
+}
+
+// ---------- Scroll-triggered mood via IntersectionObserver ----------
+const sections = document.querySelectorAll('section.chapter');
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting && entry.intersectionRatio > 0.35){
+      applyMood(entry.target.dataset.mood);
+      applyStaticGold(parseFloat(entry.target.dataset.static || '0'), parseFloat(entry.target.dataset.gold || '0'));
+    }
+  });
+}, { threshold: [0.35, 0.5, 0.65] });
+sections.forEach(s=>io.observe(s));
+
+// ---------- Procedural ambient audio (Web Audio API, no external files) ----------
+function buildAudioEngine(){
+  let ctx = null;
+  let master = null;
+  let droneOsc1, droneOsc2, droneGain, filter, lfo, lfoGain;
+  let staticNoiseSource, staticGain, staticFilter;
+  let goldOsc, goldGain;
+  let playing = false;
+  let currentMoodParams = { freq: 55, filterFreq: 800, detune: 4 };
+
+  const moodAudio = {
+    warm:   { freq: 65,  filterFreq: 1100, detune: 3, lfoRate: 0.06 },
+    wonder: { freq: 82,  filterFreq: 1800, detune: 5, lfoRate: 0.10 },
+    quiet:  { freq: 55,  filterFreq: 650,  detune: 2, lfoRate: 0.04 },
+    tense:  { freq: 49,  filterFreq: 500,  detune: 7, lfoRate: 0.15 },
+    cosmic: { freq: 73,  filterFreq: 1400, detune: 4, lfoRate: 0.05 },
+    climax: { freq: 98,  filterFreq: 2400, detune: 9, lfoRate: 0.22 },
+    grief:  { freq: 44,  filterFreq: 420,  detune: 2, lfoRate: 0.03 },
+    peace:  { freq: 60,  filterFreq: 900,  detune: 2, lfoRate: 0.05 },
+  };
+
+  function init(){
+    if(ctx) return;
+    ctx = new (window.AudioContext || window.webkitAudioContext)();
+    master = ctx.createGain();
+    master.gain.value = 0;
+    master.connect(ctx.destination);
+
+    filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 800;
+    filter.Q.value = 0.7;
+    filter.connect(master);
+
+    droneOsc1 = ctx.createOscillator();
+    droneOsc1.type = 'sine';
+    droneOsc1.frequency.value = 55;
+    const g1 = ctx.createGain(); g1.gain.value = 0.5;
+    droneOsc1.connect(g1); g1.connect(filter);
+
+    droneOsc2 = ctx.createOscillator();
+    droneOsc2.type = 'sine';
+    droneOsc2.frequency.value = 55 * 1.5;
+    droneOsc2.detune.value = 4;
+    const g2 = ctx.createGain(); g2.gain.value = 0.25;
+    droneOsc2.connect(g2); g2.connect(filter);
+
+    lfo = ctx.createOscillator();
+    lfo.type = 'sine';
+    lfo.frequency.value = 0.06;
+    lfoGain = ctx.createGain();
+    lfoGain.gain.value = 0.15;
+    lfo.connect(lfoGain);
+    lfoGain.connect(master.gain);
+
+    droneOsc1.start();
+    droneOsc2.start();
+    lfo.start();
+
+    const bufferSize = 2 * ctx.sampleRate;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for(let i=0;i<bufferSize;i++){ data[i] = (Math.random()*2-1) * 0.4; }
+    staticNoiseSource = ctx.createBufferSource();
+    staticNoiseSource.buffer = buffer;
+    staticNoiseSource.loop = true;
+    staticFilter = ctx.createBiquadFilter();
+    staticFilter.type = 'highpass';
+    staticFilter.frequency.value = 3500;
+    staticGain = ctx.createGain();
+    staticGain.gain.value = 0;
+    staticNoiseSource.connect(staticFilter);
+    staticFilter.connect(staticGain);
+    staticGain.connect(master);
+    staticNoiseSource.start();
+
+    goldOsc = ctx.createOscillator();
+    goldOsc.type = 'sine';
+    goldOsc.frequency.value = 660;
+    goldGain = ctx.createGain();
+    goldGain.gain.value = 0;
+    goldOsc.connect(goldGain);
+    goldGain.connect(master);
+    goldOsc.start();
+  }
+
+  function setStaticGold(staticVal, goldVal){
+    if(!ctx) return;
+    const t = ctx.currentTime;
+    staticGain.gain.linearRampToValueAtTime(Math.min(staticVal, 1) * 0.035, t + 2.5);
+    goldGain.gain.linearRampToValueAtTime(Math.min(goldVal, 1) * 0.05, t + 3);
+    goldOsc.frequency.linearRampToValueAtTime(640 + goldVal * 40, t + 3);
+  }
+
+  function chime(freq){
+    if(!ctx) return;
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.06, t + 1.2);
+    g.gain.linearRampToValueAtTime(0, t + 5);
+    osc.connect(g);
+    g.connect(master);
+    osc.start(t);
+    osc.stop(t + 5.2);
+  }
+
+  function setMood(mood){
+    const p = moodAudio[mood] || moodAudio.quiet;
+    currentMoodParams = p;
+    if(!ctx) return;
+    const t = ctx.currentTime;
+    droneOsc1.frequency.linearRampToValueAtTime(p.freq, t + 3);
+    droneOsc2.frequency.linearRampToValueAtTime(p.freq * 1.5, t + 3);
+    droneOsc2.detune.linearRampToValueAtTime(p.detune, t + 3);
+    filter.frequency.linearRampToValueAtTime(p.filterFreq, t + 3);
+    lfo.frequency.linearRampToValueAtTime(p.lfoRate, t + 2);
+    chime(p.freq * 3);
+  }
+
+  function toggle(){
+    init();
+    if(ctx.state === 'suspended') ctx.resume();
+    playing = !playing;
+    const t = ctx.currentTime;
+    master.gain.cancelScheduledValues(t);
+    master.gain.setValueAtTime(master.gain.value, t);
+    master.gain.linearRampToValueAtTime(playing ? 0.14 : 0, t + 1.5);
+    if(playing){
+      setMood(document.querySelector('section.chapter[data-mood]')?.dataset.mood || 'quiet');
+      setStaticGold(window.__lastStatic || 0, window.__lastGold || 0);
+    }
+    return playing;
+  }
+
+  return { toggle: toggle, setMood: setMood, setStaticGold: setStaticGold, isPlaying: ()=>playing };
+}
+
+window.__audioEngine = buildAudioEngine();
+
+const audioBtn = document.getElementById('audioBtn');
+audioBtn.addEventListener('click', ()=>{
+  const on = window.__audioEngine.toggle();
+  audioBtn.classList.toggle('active', on);
+  audioBtn.setAttribute('aria-pressed', on ? 'true':'false');
+  audioBtn.setAttribute('aria-label', on ? 'Mute ambient sound' : 'Play ambient sound');
+});
+
+// ---------- Auto-scroll at a comfortable reading pace ----------
+const scrollBtn = document.getElementById('scrollBtn');
+let autoScrolling = false;
+let rafId = null;
+
+// Estimate total words to calibrate duration to ~190 wpm (comfortable, slower-friendly pace)
+const wordCount = document.body.innerText.trim().split(/\s+/).length;
+const READING_WPM = 190;
+const totalMinutes = wordCount / READING_WPM;
+const totalScrollMs = totalMinutes * 60 * 1000;
+
+function startAutoScroll(){
+  const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const startY = window.scrollY;
+  const remainingHeight = scrollHeight - startY;
+  const remainingRatio = remainingHeight / scrollHeight;
+  const durationMs = totalScrollMs * remainingRatio;
+  const startTime = performance.now();
+
+  function step(now){
+    if(!autoScrolling) return;
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / durationMs, 1);
+    window.scrollTo(0, startY + remainingHeight * progress);
+    if(progress < 1){
+      rafId = requestAnimationFrame(step);
+    } else {
+      autoScrolling = false;
+      scrollBtn.classList.remove('active');
+      scrollBtn.setAttribute('aria-pressed', 'false');
+    }
+  }
+  rafId = requestAnimationFrame(step);
+}
+
+scrollBtn.addEventListener('click', ()=>{
+  autoScrolling = !autoScrolling;
+  scrollBtn.classList.toggle('active', autoScrolling);
+  scrollBtn.setAttribute('aria-pressed', autoScrolling ? 'true' : 'false');
+  scrollBtn.setAttribute('aria-label', autoScrolling ? 'Stop auto-scroll' : 'Start auto-scroll');
+  if(autoScrolling){
+    startAutoScroll();
+  } else if(rafId){
+    cancelAnimationFrame(rafId);
+  }
+});
+
+// Stop autoscroll if the user manually scrolls/drags
+let lastScrollWasProgrammatic = false;
+window.addEventListener('wheel', ()=>{ if(autoScrolling){ autoScrolling = false; scrollBtn.classList.remove('active'); scrollBtn.setAttribute('aria-pressed','false'); if(rafId) cancelAnimationFrame(rafId); }}, {passive:true});
+window.addEventListener('touchmove', ()=>{ if(autoScrolling){ autoScrolling = false; scrollBtn.classList.remove('active'); scrollBtn.setAttribute('aria-pressed','false'); if(rafId) cancelAnimationFrame(rafId); }}, {passive:true});
+
+// Fade the hint after first scroll
+window.addEventListener('scroll', ()=>{
+  document.getElementById('hint').style.opacity = window.scrollY > 200 ? '0' : '0.7';
+}, { passive:true, once:false });
+
+// Initialize mood to prologue's
+applyMood('warm');
+applyStaticGold(0, 0);
+</script>
+
+</body>
+</html>
