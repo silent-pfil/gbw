@@ -11,7 +11,7 @@ A sci-fi trilogy about belief, biology, and what happens when the cosmos stops b
 | Book | Title | Status |
 |---|---|---|
 | I | *Veil of Green* | **Complete** — available now |
-| II | *(untitled)* | In progress |
+| II | *Veil of Static* | **Complete** - svailable now |
 | III | *(untitled)* | Planned |
 
 ---
