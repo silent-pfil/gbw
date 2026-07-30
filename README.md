@@ -11,16 +11,16 @@ A sci-fi trilogy about belief, biology, and what happens when the cosmos stops b
 | Book | Title | Status |
 |---|---|---|
 | I | *Veil of Green* | **Complete** — available now |
-| II | *Veil of Static* | **Complete** - available now |
+| II | *Veil of Static* | **Complete** — available now |
 | III | *(untitled)* | Planned |
 
 ---
 
 ## Read it
 
-Open [index](https://silent-pfil.github.io/gbw/index.html) in a browser. From there, **Book I** is live and fully interactive.
+Open [index](https://silent-pfil.github.io/gbw/index.html) in a browser. From there, **Book I & II** is live and fully interactive.
 
-Book I is built as an immersive reading experience, not just a text dump:
+Both are built as an immersive reading experience, not just a text dump:
 
 - **Ambient sound** — a fully procedural soundscape (Web Audio API, no external audio files) that shifts tone and texture as the story's mood changes, chapter to chapter.
 - **Color that moves with the story** — the whole page's palette drifts between eight emotional registers as you scroll, from quiet dread to full cosmic wonder.
