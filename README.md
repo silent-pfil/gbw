@@ -18,7 +18,7 @@ A sci-fi trilogy about belief, biology, and what happens when the cosmos stops b
 
 ## Read it
 
-Open [index](https://silent-pfil.github.io/gbw/index.html) in a browser. From there, **Book I & II** is live and fully interactive.
+Open [index](https://silent-pfil.github.io/gbw/index.html) in a browser. From there, **Book I & II** are live and fully interactive.
 
 Both are built as an immersive reading experience, not just a text dump:
 
