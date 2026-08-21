@@ -55,10 +55,15 @@ This trilogy was written collaboratively with Claude (Anthropic), across many lo
 
 ## License
 
-Free to read, free to share. See [`LICENSE`](LICENSE) for details.
+Free to read, free to share.
 
 ---
 
 ## Feedback
 
 This is a living project. If something didn't land, or something did, open an issue — genuinely want to hear it.
+
+
+-pfil
+
+
