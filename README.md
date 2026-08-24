@@ -20,7 +20,7 @@ The trilogy is finished, start to end.
 
 ## Read it
 
-Open [`index.html`](index.html) in a browser, or enable GitHub Pages on this repo and visit the published link. From there, all three books are live and fully interactive.
+Visit the published link. From there, all three books are live and fully interactive.
 
 Each book is built as an immersive reading experience, not just a text dump:
 
