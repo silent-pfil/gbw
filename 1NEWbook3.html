@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Veil of Gold — Book Three</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0a0b0d;
+    --bg-deep: #050608;
+    --accent: #3ecf8e;
+    --accent-2: #4d9fd6;
+    --text: #e7e9ea;
+    --text-dim: #9aa0a6;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:auto;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Source Serif 4', serif;
+    font-size:1.15rem;
+    line-height:1.85;
+    overflow-x:hidden;
+  }
+
+  /* Corner glow — rendered by JS every frame (multi-stop gradient,
+     softened edge, fixed-duration tween on value changes so nothing
+     ever pops when a scene changes, however large the jump). */
+  #cornerGlow{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:0;
+  }
+
+  /* Presence orbs — canvas-rendered particle clouds. Density of the
+     scatter IS the intensity signal, same principle as an electron
+     probability cloud. */
+  #whiteOrb, #goldOrb{
+    position:fixed;
+    z-index:10;
+    pointer-events:none;
+  }
+  #whiteOrb{bottom:1rem; left:1rem; width:34px; height:34px;}
+  #goldOrb{top:1rem; right:4.6rem; width:30px; height:30px;}
+
+  main{
+    position:relative;
+    z-index:1;
+    max-width:640px;
+    margin:0 auto;
+    padding: 14vh 1.75rem 40vh;
+  }
+
+  header.titleblock{
+    text-align:center;
+    padding: 8vh 1rem 12vh;
+    max-width:640px;
+    margin:0 auto;
+  }
+
+  header.titleblock .eyebrow{
+    font-family:'Space Mono', monospace;
+    font-size:0.72rem;
+    letter-spacing:0.28em;
+    text-transform:uppercase;
+    color:var(--accent);
+    opacity:0.8;
+  }
+
+  header.titleblock h1{
+    font-family:'Fraunces', serif;
+    font-optical-sizing:auto;
+    font-weight:500;
+    font-style:italic;
+    font-size:clamp(2.2rem, 7vw, 3.6rem);
+    margin:0.6em 0 0.2em;
+    letter-spacing:0.01em;
+  }
+
+  header.titleblock .sub{
+    font-family:'Space Mono', monospace;
+    font-size:0.8rem;
+    color:var(--text-dim);
+    letter-spacing:0.06em;
+  }
+
+  section.chapter{
+    margin-bottom: 12vh;
+  }
+
+  section.chapter h2{
+    font-family:'Fraunces', serif;
+    font-weight:500;
+    font-style:italic;
+    font-size:clamp(1.4rem, 4vw, 1.9rem);
+    color:var(--text);
+    margin: 0 0 1.6em;
+    padding-bottom:0.5em;
+    border-bottom: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  }
+
+  section.scene p{
+    margin: 0 0 1.4em;
+  }
+
+  section.scene p em{
+    font-style:italic;
+    color: color-mix(in srgb, var(--text) 85%, var(--accent) 15%);
+  }
+
+  .scenebreak{
+    text-align:center;
+    color:var(--accent);
+    opacity:0.55;
+    font-size:1.3rem;
+    margin: 2.2em 0;
+    letter-spacing:0.4em;
+  }
+
+  /* Controls */
+  #controls{
+    position:fixed;
+    top:1.5rem;
+    right:1.5rem;
+    z-index:10;
+    display:flex;
+    flex-direction:column;
+    gap:0.6rem;
+  }
+
+  .ctl-btn{
+    width:48px;
+    height:48px;
+    border-radius:50%;
+    border:1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+    background: color-mix(in srgb, var(--bg) 80%, black 20%);
+    backdrop-filter: blur(6px);
+    color:var(--text);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    transition: border-color 0.4s ease, background 0.4s ease, transform 0.2s ease;
+  }
+
+  .ctl-btn:hover{
+    border-color:var(--accent);
+    transform:scale(1.06);
+  }
+
+  .ctl-btn:focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:3px;
+  }
+
+  .ctl-btn svg{width:20px;height:20px;stroke:var(--text);fill:none;stroke-width:1.6;}
+  .ctl-btn.active{border-color:var(--accent); background: color-mix(in srgb, var(--accent) 18%, var(--bg) 82%);}
+  .ctl-btn.active svg{stroke:var(--accent);}
+
+  #hint{
+    position:fixed;
+    bottom:1.4rem;
+    left:50%;
+    transform:translateX(-50%);
+    font-family:'Space Mono', monospace;
+    font-size:0.68rem;
+    letter-spacing:0.1em;
+    color:var(--text-dim);
+    opacity:0.7;
+    text-transform:uppercase;
+    z-index:10;
+    pointer-events:none;
+    transition:opacity 0.6s ease;
+  }
+
+  a.backlink{
+    display:inline-block;
+    margin-bottom:2rem;
+    font-family:'Space Mono', monospace;
+    font-size:0.75rem;
+    letter-spacing:0.08em;
+    color:var(--text-dim);
+    text-decoration:none;
+    border-bottom:1px solid transparent;
+  }
+  a.backlink:hover{color:var(--accent); border-color:var(--accent);}
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition-duration: 0.01ms !important;}
+  }
+
+  @media (max-width: 640px){
+    body{font-size:1.05rem;}
+    main{padding-top:8vh;}
+  }
+</style>
+</head>
+<body>
+
+<div id="cornerGlow"></div>
+<canvas id="whiteOrb" width="68" height="68" aria-hidden="true" title="presence static"></canvas>
+<canvas id="goldOrb" width="60" height="60" aria-hidden="true" title="???"></canvas>
+
+<div id="controls">
+  <button class="ctl-btn" id="audioBtn" aria-pressed="false" aria-label="Play ambient sound">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 5V4L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7" id="wave1"/><path d="M19 6a8.5 8.5 0 0 1 0 12" id="wave2"/></svg>
+  </button>
+  <button class="ctl-btn" id="scrollBtn" aria-pressed="false" aria-label="Start auto-scroll">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M12 19l-5-5M12 19l5-5"/></svg>
+  </button>
+</div>
+
+<div id="hint">scroll to read &middot; tap the moon-icon to listen &middot; tap the arrow to read hands-free</div>
+
+<header class="titleblock">
+  <div class="eyebrow">GBW &middot; Book Three</div>
+  <h1>Veil of Gold</h1>
+  <div class="sub">an immersive reading &middot; ambient &amp; auto-scroll available</div>
+</header>
+
+<main>
+<a class="backlink" href="index.html">&larr; back to the trilogy</a>
+
+<section class="chapter" id="ch1">
+<h2>Chapter One — The Table Gets Longer</h2>
+<section class="scene" id="ch1-s0">
+<p>The farm smelled like woodsmoke and cut grass, which meant somebody had started the fire pit too early again, and somebody else had mowed a strip of the east field just to have an excuse to drive the tractor past the porch and wave at everyone twice.</p>
+<p>Mateo counted heads out of habit. It was a farmhand thing, or maybe just a Mateo thing — tallying who was where before he let himself relax. Sara and Neal were dragging the long table out from the barn, the same one that had hosted every gathering worth remembering, and arguing cheerfully about which end wobbled. Olivia sat on the porch rail with Steve, the two of them doing that thing where they finished each other's sentences and then looked mildly surprised about it. Provi was already elbow-deep in a pot big enough to bathe a toddler in, muttering to himself about seasoning like it was a personal grudge. Kita, all black fur and zero patience, sat on the porch rail above the whole operation with his tail flicking in slow, judgmental arcs, supervising.</p>
+<p>And then a truck came up the drive with the elders in it.</p>
+<p>That was new. Not new that they existed — the trio of gray-haired, sharp-eyed old-timers who'd been quietly steering things from the background for longer than Mateo had been alive — but new that they were arriving together, unannounced, wearing the particular expression of people who had decided something and were about to tell everyone else what it was.</p>
+<p>Kita's ears went flat, and he let out a low, unimpressed sound that everyone had learned to interpret as <em>oh no.</em></p>
+<p>"He's got a point," Mateo said, watching the truck doors open. "That's not a friendly-visit walk. That's a council walk."</p>
+<p>Lira came around the side of the house at exactly the wrong moment, arms full of folding chairs, and walked directly into the middle of it. She stopped, looked at the elders climbing down from the truck, looked at the chairs in her arms, and made the executive decision to keep walking like she hadn't seen anything. It didn't work. Old Weyland — the tallest of the three, the one who talked the least and therefore terrified everyone the most — raised a hand and she froze mid-stride like she'd been caught sneaking cookies.</p>
+<p>"We've been talking," Weyland said, which was somehow both the least and most alarming thing he could have opened with.</p>
+<p>"About?" Mateo asked, setting down the plates he'd been counting.</p>
+<p>"About the fact that none of you have rested properly in a month," said Ilsa, the shortest and loudest of the three, hands on her hips. "About the fact that you're all still running this place like it's going to fall apart if you sit down for five minutes. And about the fact that somebody" — her eyes cut, not unkindly, toward the whole yard at once — "needs to remind you that a farm gathering is supposed to have people <em>at</em> it, not just people <em>setting it up.</em>"</p>
+<p>There was a pause. Somewhere behind the barn, a chicken had opinions about something and voiced them loudly. Kita, from his perch, gave the elders a long, evaluating stare, the kind that suggested he was reserving judgment but leaning favorable.</p>
+<p>"So," said the third elder, Bram, who mostly existed to agree with whoever spoke last and occasionally surprise everyone by not, "we're taking over. Just for today."</p>
+<p>"Taking over <em>what,</em> exactly," Sara said, straightening up from the table with her hands on her hips in an expression that suggested she'd learned it from Ilsa specifically.</p>
+<p>"Everything," Ilsa said. "The food. The fire. The seating chart, God help us all, because whoever made the last one sat Neal across from the goat pen again—"</p>
+<p>"That was one time—"</p>
+<p>"—and you're all going to go sit down, and drink something, and be <em>people</em> for an afternoon instead of whatever it is you've all turned into."</p>
+<p>Nobody moved right away. It wasn't defiance, exactly — more the particular paralysis of people who had forgotten how to be told to rest. Mateo looked at Lira. Lira looked at the empty chair at the head of the table, the one nobody had moved in months, the one that still got set with a plate out of habit nobody wanted to break first.</p>
+<p>Weyland followed her gaze. He didn't say anything about it — didn't need to. He just walked over, picked up the plate, and set it two seats down, closer to the rest of them. Not gone. Just closer.</p>
+<p>"She'd have hated watching you all stand around being sad instead of eating," he said, matter-of-fact, like he was commenting on the weather. "Elara fed people for a living, near enough. Sit."</p>
+<p>That did it, somehow, more than any speech could have. Provi abandoned the pot to the elders' custody without a fight — a genuine first — wiping his hands on his apron with the air of a man relinquishing a throne he hadn't wanted in the first place. Sara and Neal gave up on the wobbly table and just shoved a folded napkin under the short leg, the way it had always been fixed, the way it would probably always be fixed, because some problems weren't worth solving properly when they made for a good story instead. Kita hopped down from the rail, stalked across the yard with the deliberate dignity of a creature who had decided ground level was acceptable again, and installed himself directly in the middle of the table's best-lit chair, daring anyone to ask him to move.</p>
+<p>Nobody did.</p>
+<p>Within twenty minutes the yard had reorganized itself the way it always eventually did — chairs dragged into loose clusters, Ilsa bullying the fire into better shape, Bram telling a story about Elara that had definitely grown three sizes since he first told it, Weyland saying almost nothing and somehow anchoring the whole thing anyway. Olivia lost an arm-wrestling match to Steve and immediately demanded a rematch on the grounds that the sun had been in her eyes. Kita presided over it all from his stolen chair with the unbothered air of a small dark king, occasionally accepting tribute in the form of whatever fell off a nearby plate.</p>
+<p>Lira ended up on the porch steps with a plate she wasn't really eating from, watching it all. Mateo dropped down next to her, close enough that their shoulders touched.</p>
+<p>"They're right, you know," he said. "We have been running ourselves into the ground."</p>
+<p>"I know."</p>
+<p>"You gonna do anything about that?"</p>
+<p>She considered the yard — the noise, the smoke, the empty chair that wasn't quite so empty-looking anymore, tucked in among the others instead of standing alone at the head of the table like a monument. Somewhere in the middle of it, Sara said something that made Neal nearly fall off his chair laughing, and the sound carried clean across the field.</p>
+<p>"Not today," Lira said. Then, softer, watching Kita ignore all of them magnificently from his throne: "Ask me again tomorrow."</p>
+<p>Mateo huffed something that was almost a laugh, and let it go at that. The table, longer now than it used to be, filled up anyway.</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+</section>
+
+<section class="chapter" id="ch2">
+<h2>Chapter Two — What the Morning Gives Back</h2>
+<section class="scene" id="ch2-s0">
+<p>Lira woke up slow, which was the first sign something was different.</p>
+<p>There was no jolt to it, no mental checklist arriving before her eyes had even opened. Just light — too much of it, spilling gold and unfamiliar across the ceiling, the kind of late-morning light she hadn't seen from this angle in longer than she could easily place. She lay there a moment just blinking at it, disoriented in the pleasant way, like she'd wandered into the wrong version of her own room.</p>
+<p>Then a small black weight landed on her chest with the precision of a creature who had been waiting for exactly this moment, and Kita headbutted her chin with an enthusiasm bordering on violence, purring loud enough to feel it in her sternum before she heard it. He pressed his nose to hers once, twice, then sat back on her ribs and looked at her with the flat, patient expression of a cat whose patience had, in fact, run out several minutes ago.</p>
+<p>"Let me guess," Lira said, voice rough with more sleep than she was used to carrying. "Breakfast."</p>
+<p>Kita didn't dignify that with a response. He simply stared, tail doing one slow sweep across the blanket, radiating the quiet menace of an animal who knew he'd already won.</p>
+<p>She laughed — actually laughed, first thing in the morning, which was rare enough that she noticed it — and scratched behind his ears before swinging her legs out of bed. Her Vigil sat where it always did, and she went through the motions of it quickly this morning, abbreviated by the late start but no less felt for it: a breath held and released, a moment of stillness that asked nothing of her and gave back exactly as much as she put in. Shorter today. Still enough.</p>
+<p>Out in the hallway, Mateo was leaning against the doorframe of his own room looking like a man who'd forgotten what rest felt like and was only now being reintroduced to it.</p>
+<p>"Tell me you slept as late as I did," he said.</p>
+<p>"Later, probably. Kita had to file a formal complaint to wake me up."</p>
+<p>"I got the same treatment. Turns out he's learned your one-cat-here, same-cat-there Schrödinger trick, because he was headbutting my door too. Little menace multitasks." He scrubbed a hand over his face, grinning despite himself. "I don't think I've slept a full night since before Elara passed."</p>
+<p>"Me neither." Lira said it plainly, without the weight it might have carried yesterday. It was just true. "Feels strange. Good-strange."</p>
+<p>"Good-strange," he agreed, and they went downstairs together, Kita trotting ahead of them like he was personally responsible for herding the whole household toward the day.</p>
+<p>The dining room was already occupied. Olivia and Steve sat close together at one end of the table, hands loosely linked, wearing the particular calm of people who'd made a decision and were at peace with it. Sara and Neal sat across from them, looking like they'd been up for a while, coffee going cold in front of them, both of them practically vibrating with something they were visibly trying not to blurt out too fast.</p>
+<p>"Okay," Lira said, taking a seat. "Something's happening. What's happening."</p>
+<p>Olivia and Steve exchanged a look — the kind of look that had an entire conversation folded inside it — and Olivia was the one who said it.</p>
+<p>"We're going to Diverge. Today."</p>
+<p>The room didn't go quiet so much as it went <em>full,</em> the way a space does when everyone in it is feeling the same enormous thing at once. Mateo reached over and gripped Steve's shoulder without a word. Lira found she didn't have anything clever to say, and didn't try to find one.</p>
+<p>"We talked about it a long time before yesterday," Steve added, quieter. "But watching all of you yesterday — the table, the noise, everybody just <em>being</em> there for each other — it made it feel right. Like the timing finally caught up to the decision."</p>
+<p>"We're happy for you," Lira said, and meant it entirely, the ache and the joy arriving together the way they always did with news like this. "Truly."</p>
+<p>"There's more," Sara said, glancing at Neal, who nodded her forward. "If — if you'll have us. We'd like to fill the positions. On the crew. If that's something you'd want."</p>
+<p>Neither Lira nor Mateo needed to look at each other to answer that.</p>
+<p>"Yes," Mateo said, before Lira could even open her mouth, and then laughed at himself for how fast it came out. "Sorry — yes. Obviously yes."</p>
+<p>"We'd love that," Lira said. "We'd really love that."</p>
+<p>The morning unspooled easy after that, full of overlapping conversation and plans half-made and Kita weaving figure-eights around ankles demanding attention he was absolutely still owed. It was, Lira thought, the kind of morning that felt like it should have been sad and simply wasn't — grief and gladness sitting shoulder to shoulder at the same table, taking turns without ever really letting go of each other's hand.</p>
+<p>By the time the light started turning long and amber across the fields, they'd gathered outside, all of them, the whole strange beautiful assembly of people who'd built a life together out of nothing but choice.</p>
+<p>Lira hugged Olivia first, held on a beat longer than usual, and Olivia laughed wetly into her shoulder and told her to stop being sentimental or she'd start crying before the good part.</p>
+<p>Steve was last. Lira took both his hands and just looked at him for a moment — really looked, at the whole shape of who he'd been and who he was choosing to become — and something in her chest settled, warm and certain.</p>
+<p>"You ready?" she asked.</p>
+<p>"I've been ready," Steve said. "I just wanted to leave from somewhere worth leaving from."</p>
+<p>Mateo clapped him once on the shoulder, didn't trust himself to say much more than "proud of you, man," and meant every syllable of it. Kita, of all creatures, wound once around Steve's ankles before sitting back to watch, tail curled neat around his paws, as if he understood exactly what this was and had decided to grant it his blessing.</p>
+<p>Olivia and Steve looked at each other, and then out at all of them — the farm, the light, the people who'd loved them into this moment — and stepped forward together.</p>
+<p>The green took them soft and sudden, a bright quiet bloom that folded them up and out of the world as it was, into whatever came next. And then the yard was just a yard again, the grass a little disturbed where they'd stood, the evening settling in gold around the space they'd left behind.</p>
+<p>Nobody moved for a moment. It wasn't sadness, exactly, that held them there — more the hush that follows something enormous and right.</p>
+<p>Lira let out a breath, felt Mateo's hand find hers, and turned to Sara and Neal, who were standing close together, teary and grinning in equal measure.</p>
+<p>"So," she said. "You two ready to see the Echo?"</p>
+<p>"Now?" Sara asked.</p>
+<p>"Not this second," Mateo said. "We can take the shuttle. Long way round — slow, scenic, no rush. Might as well let you get a good look at the sky on the way."</p>
+<p>Sara and Neal looked at each other and nodded, and the four of them — five, counting the cat who insisted on riding shotgun — made their way toward the shuttle as the farm settled into evening behind them, lights coming on in the windows, voices still drifting faint from the porch where the Church volunteers who lived and worked the farm carried on into the evening without them.</p>
+<p>Alive with activity. Alive with presence.</p>
+<p>The way it always should be. The way it always would be.</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+</section>
+
+<section class="chapter" id="ch3">
+<h2>Chapter Three — Fresh Meat</h2>
+<section class="scene" id="ch3-s0">
+<p>The Echo grew from a point of light to a shape to something enormous and familiar in the shuttle's forward viewport, and Lira watched Sara's hand find Neal's without either of them seeming to notice they'd done it.</p>
+<p>"First time seeing her up close?" Mateo asked, easing the shuttle into its final approach.</p>
+<p>"First time seeing anything up close," Neal said, a little breathless, eyes fixed on the hull sliding past the viewport in slow, silver-lit segments.</p>
+<p>The airlock cycled with its usual groan and hiss, and the moment the inner door began to slide open, sound came pouring through the gap — not the low familiar hum Lira expected, but a full, screeching chorus of alarms, layered three and four deep, red light strobing somewhere down the corridor. Underneath it all, two voices were talking over each other at a clip no human mouth could have managed, rattling off numbers and terms that meant absolutely nothing strung together the way they were being strung together.</p>
+<p>"—hull integrity fluctuating at fourteen percent variance, recommend immediate—"</p>
+<p>"—quantum flux bleeding across secondary containment, cross-referencing with tertiary—"</p>
+<p>"—unauthorized biometric signatures detected, seventeen new anomalies in—"</p>
+<p>Sara had gone very pale. Neal looked like he was doing rapid math on how far it was back to the shuttle.</p>
+<p>Lira caught Mateo's eye and had to bite the inside of her cheek to keep her face straight.</p>
+<p>The airlock finished opening on a scene of total, glorious chaos — lights strobing red and gold down the length of the corridor, a low klaxon pulsing under everything, and two new crew members frozen mid-step like startled deer, unsure whether to run toward the noise or away from it.</p>
+<p>Provi was already there, arms crossed, watching the whole production with the deep satisfaction of a man who'd had nothing to do with planning it but fully intended to take credit for the timing. He clapped Sara on the shoulder, then Neal, grinning wide.</p>
+<p>"Welcome aboard," he said warmly, like the ship wasn't currently sounding like it was actively dying around them. "You'll get used to it."</p>
+<p>And then, before either of them could ask what <em>it</em> meant, he dissolved into a soft wash of white noise and was gone — off to wherever he was needed next, leaving two new crew members standing in the wreckage of his exit looking somehow more unsettled than they'd been a second ago.</p>
+<p>Lira and Mateo pushed past them, unbothered, threading through the strobing corridor toward the bridge like it was any other Tuesday.</p>
+<p>"You two are <em>relentless,</em>" Lira called out, laughing, as the bridge came into view.</p>
+<p>"We have been <em>planning</em> this for weeks," said Eliza's voice, warm and delighted, from somewhere in the walls.</p>
+<p>"Months, really," Reggie added. "Weeks makes it sound rushed. We are not rushed people."</p>
+<p>"You're not people at all," Mateo said, grinning up at nothing in particular.</p>
+<p>"Semantics," said Reggie.</p>
+<p>The alarms held for one more long, indulgent beat — Lira could practically feel the two AIs savoring it — before everything cut out at once. The strobing lights faded back to their usual soft glow, the klaxon died mid-pulse, and the ship settled back into its familiar ambient hum, gentle and constant as breathing.</p>
+<p>"That," Eliza said primly, "was for the historical record. Every crew gets one."</p>
+<p>Sara let out a shaky laugh, some color coming back into her face. "Is that — is that going to happen every time someone new comes aboard?"</p>
+<p>"Every single time," Reggie confirmed, entirely too pleased with himself. "It's tradition now. You're part of it too, going forward. Whoever comes after you."</p>
+<p>"Welcome to the Echo," Lira said, still grinning, and held out a hand to each of them. "Come on. Let's show you around properly."</p>
+<p>The tour started right there on the bridge, easy and unhurried. "This is the bridge. You've already met the terrors who run it — Reggie handles ship systems, Eliza handles crew and comms, and between the two of them nothing on this ship happens without at least one of them knowing about it first."</p>
+<p>"Flattery," Eliza said. "Accurate flattery."</p>
+<p>From there they wound down through the mess hall, long tables bolted low against variable gravity, a coffee maker that Mateo warned them not to trust before nine ship-hours. "Provi's usually in and out of here more than anywhere else," Lira said. "When he's around, anyway."</p>
+<p>"Does he always just — leave like that?" Neal asked. "The noise thing?"</p>
+<p>"White-noise flash," Mateo said. "You get used to it. Mostly."</p>
+<p>Mateo's quarters came next, tidy in a way that suggested a man who didn't spend much time sitting still in them, a few personal effects arranged with obvious care despite the sparseness. "Mine," he said simply, and didn't linger, already moving them down the corridor.</p>
+<p>The spare room after it still smelled faintly of something warm and animal despite being empty of anything but a stripped bunk and bare shelves. "This used to be Kita's little kingdom," Lira said, glancing fondly down at the cat currently weaving unbothered around everyone's ankles. "He's decided he prefers my floor these days. It's yours now, Neal, if you want it."</p>
+<p>Neal peered in, then down at Kita, who returned the look with supreme indifference. "I'll try to live up to the standard."</p>
+<p>Then came a door Lira paused a beat longer at before opening.</p>
+<p>"This was Elara's," she said, and there was no need to explain further — the way she said the name did that on its own. The room was clean, sparse, sunlight-warm from the porthole angled just right. "I'd like it to be yours, Sara. If that's alright."</p>
+<p>Sara went quiet, looking into the room like she understood exactly what was being handed to her. "I'd be honored," she said finally, softly. "Really."</p>
+<p>"Good," Lira said, and meant everything that word was carrying.</p>
+<p>Last stop was her own quarters, and she stepped through into a room that looked, at first glance, unremarkable — until she raised a hand and the air above her palm bloomed green, soft and quiet as a held breath, curling and dissolving into blue, then dissolving further into a hush of static-bright white noise that scattered like scattered stars before fading out entirely.</p>
+<p>Sara actually gasped. Neal just stared, wide-eyed, forgetting to say anything at all.</p>
+<p>"Green, blue, white noise," Lira said, watching the last of it fade. "Those I can do. Those I understand, more or less." She let her hand drop, quiet for a moment. "What I'm looking for is something else. Gold. A shimmer of it, somewhere out there in the cosmos, or under it, in whatever sits beneath everything else. I don't know exactly where. I just know I'll recognize it when I find it."</p>
+<p>Neither Sara nor Neal had anything to say to that — how could they — but neither of them looked away either.</p>
+<p>Just outside her doorway sat three folding lawn chairs, worn soft with use, angled to face directly into the room. Lira glanced at them, and something in her expression went fond.</p>
+<p>"Mine," she said, nodding to the first. "Mateo's." The second. She paused at the third a beat longer. "That one was Elara's. Kita's, now. He doesn't miss a session."</p>
+<p>As if summoned, Kita trotted past all of them and hopped up into the third chair, circling once before settling into it with the unbothered authority of an animal reclaiming what had always been his by right of inheritance.</p>
+<p>"You watch her do it?" Sara asked. "From out here?"</p>
+<p>"Best seats in the house," Mateo said, and disappeared back down the corridor without further explanation, returning a minute later with two more folding chairs, one under each arm. He set them down at the end of the row, adjusting them until the whole line sat even and facing the same direction — five chairs now, and a cat, all turned expectantly toward an open doorway.</p>
+<p>"Figured it's about time you two had your own seats," he said simply.</p>
+<p>Sara and Neal took them, still a little dazed by the whole day, and Lira stepped back into the center of her quarters. She settled into a slow hover, cross-legged, a few inches above the floor, and closed her eyes.</p>
+<p>The room answered her.</p>
+<p>Stars bloomed across the walls first, faint and scattered, then spread to the ceiling and down across the floor beneath her until the whole room was cosmos — no walls left at all, just the dizzying hush of deep space wrapped fully around her, threaded through with soft ribbons of green light that pulsed once, twice, and dissolved into slow blue, and beneath that, underneath everything, a static hum of white noise like the room was breathing in some language older than sound.</p>
+<p>Neal made a small, involuntary noise beside Sara. Mateo just watched, familiar and unhurried, the way a person watches a sunset they've seen a thousand times and still can't look away from.</p>
+<p>Kita's eyes tracked every shift of light without blinking once.</p>
+<p>Lira sat suspended in the middle of it all, searching — patient, unrushed, the same quiet searching she did every time — for the one color that hadn't shown itself yet. The gold. The shimmer somewhere in all that dark.</p>
+<p>It didn't come tonight. It rarely did. But she kept looking anyway, and behind her, in a row of five folding chairs and one very dignified cat, so did everyone else.</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+</section>
+
+<section class="chapter" id="ch4">
+<h2>Chapter Four — What the Gold Might Mean</h2>
+<section class="scene" id="ch4-s0">
+<p>Mateo was always the first one up. Had been for as long as he could remember, long before the Echo, long before any of this — some part of him just wired to greet the day before the day had fully decided to arrive.</p>
+<p>The bridge was quiet at this hour, lit low and soft, the ambient hum of the ship the only sound until he cleared his throat.</p>
+<p>"Morning, you two."</p>
+<p>"Morning," Eliza said, warmer than the ship's systems display had any right to sound. "You're seven minutes later than yesterday."</p>
+<p>"I was tired yesterday was seven minutes early. Today's the correction."</p>
+<p>"Noted and logged," Reggie said, entirely too pleased with himself. "For posterity."</p>
+<p>Mateo dropped into the chair at the comms station, the one that had become his by habit more than assignment. "Anything I should know? Anything on board acting up, needs looked at?"</p>
+<p>"Secondary coolant line in engineering's running a hair warmer than I'd like," Reggie said. "Nothing urgent. I'd like eyes on it sometime this week, not this morning."</p>
+<p>"I'll pull the schedule and figure out who's free."</p>
+<p>"Structurally, otherwise clean," Eliza added. "Crew-wise — Sara's settling in well. Good instincts, still second-guessing herself more than she needs to. Neal's sleeping better than his first two weeks, for what that's worth. Kita's food consumption is up four percent, which either means he's happy or plotting something."</p>
+<p>"With him it's usually both."</p>
+<p>"Lira's Vigils have been running a little longer than her average the past week," Eliza said, gentler now, the kind of gentle she only got when it mattered. "Not concerning. Just longer. Thought you'd want to know."</p>
+<p>Mateo nodded slowly, filing that away the way he filed most things Eliza told him about Lira — carefully, and for later. "Anything else? Morale, anybody need anything?"</p>
+<p>"Everyone's steady," Reggie said. "Steadier than steady, honestly. It's a good crew, Mateo. You built something worth being on."</p>
+<p>"We built it," Mateo said. "All of us. You two included."</p>
+<p>"Sap," Reggie said, but there was warmth all through it.</p>
+<p>Mateo pushed up out of the chair, rolling one shoulder loose. "Well — I better get to it."</p>
+<p>The mess hall greeted him with its usual chill, heaters clicking on under his hand, the coffee maker sputtering to life with the reluctant groan it always gave before nine ship-hours. Reggie had breakfast already staged and warming, same as every morning, and Mateo moved through the familiar motions of it — mugs down, kettle on, the whole quiet choreography of starting a day for people who weren't awake yet to thank him for it.</p>
+<p>Coffee in hand, he made his rounds.</p>
+<p>Neal's door was cracked, and through it Mateo could see him settled at his Vigil, spine straight, just beginning — that particular stillness at the start of it, before the ritual really took hold. Mateo didn't linger, just a nod through the gap that Neal didn't see and didn't need to.</p>
+<p>Sara's door was shut, but he could feel it anyway, the way you could always feel a Vigil in progress if you knew what to listen for — that hush in the air just past a threshold, someone in the middle of a private conversation with themselves.</p>
+<p>Kita fell into step with him somewhere around the corridor bend, tail up, trotting along at his usual unbothered pace like he'd been waiting for the escort. Together they made their way toward Lira's quarters, and Mateo found her mid-ritual, the last soft edges of her morning Vigil dissolving into the beginning of something else — her palm raised, green blooming and folding into blue, blue into white noise, the familiar sequence she ran through every morning like checking a ship's systems one at a time.</p>
+<p>He leaned against her doorframe, Kita settling at his feet, and watched.</p>
+<p>"Maintenance check," she murmured, not quite to him, still half inside it. Green flared, steady and clean. Blue followed, unhurried. White noise scattered soft across the walls and faded.</p>
+<p>Then the room dimmed further, cosmos bleeding out across every surface, and she went looking — that same patient searching from the chairs the other night, except this morning, faint but unmistakable, a thread of gold caught somewhere in the dark and held for a full three seconds before it slipped away again.</p>
+<p>Mateo felt his breath catch a little. "There. You saw that?"</p>
+<p>"I saw it." Lira's eyes opened, the projection easing back down into ordinary walls around her. "It's been happening more, lately. More gold than I've caught in months."</p>
+<p>"That's good, right?" Mateo said. "Feels like it should be good."</p>
+<p>Lira considered that, tilting her head the way she did when she was choosing words carefully. "It just is what it is," she said. "Good and bad don't really sit right on it — near as I can tell it's a little of everything, all folded together, all at once. Confusing, still, if I'm honest. But I'm starting to see shapes in it I didn't used to. Patterns. Like it's not just noise anymore — like there's a mechanic under it, if I can just figure out the rules."</p>
+<p>"You'll figure it out," Mateo said, with the easy certainty of a man who'd watched her figure out harder things than this.</p>
+<p>"We'll talk about it more soon," Lira said, and there was a promise folded into the way she said it, not a deflection. "There's a lot still to learn. I don't want to say more than I actually know yet."</p>
+<p>Mateo nodded, let it sit there, unforced.</p>
+<p>Footsteps came down the corridor a minute later — Sara and Neal, both freshly out of their own Vigils, drawn toward Lira's doorway the way everyone on this ship eventually was drawn there, sooner or later. They settled into their chairs without needing to be told which ones were theirs anymore. Kita claimed his spot, curling in tight. Mateo took his own seat last, coffee still warm in his hands.</p>
+<p>Lira rose back into her hover at the center of the room, and the walls dissolved once more into cosmos, patient and endless, and everyone watched together as she went looking again for the gold.</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+</section>
+
+<section class="chapter" id="ch5">
+<h2>Chapter Five — The Beyond</h2>
+<section class="scene" id="ch5-s0">
+<p>The message came through on Mateo's tablet somewhere between his second coffee and his rounds — Provi, brief as always, mentioning an upcoming visit, dates still loose. Mateo thumbed a quick <em>I'll get back to you</em> and tucked the tablet away, unhurried. Routine had a way of absorbing even the unusual lately. Everything folded easily into everything else.</p>
+<p>He found Lira already deep in it when he reached her doorway — not the familiar close cosmos of her nightly search, but something pulled back further than he'd ever seen her go, the projection zoomed out so far the room itself seemed to have lost its edges entirely, stars reduced to a fine dusting of light stretched thin across unimaginable distance, as if she were viewing the whole of everything from somewhere outside of it.</p>
+<p>He settled into his chair without a word, the way he always did, and watched.</p>
+<p>In the upper right corner of the vast dark room, faint as a held breath, gold shimmered.</p>
+<p>The view blurred — not a cut, not a transition, but a single unbroken motion, the whole scale of the universe collapsing inward on itself in an instant until the room held nothing but a single point of interaction, two impossibly small somethings meeting and becoming a third thing at a scale so fine it had no right to be visible at all. The room hummed with it, quiet and immense.</p>
+<p>In the same corner, the same gold shimmered.</p>
+<p>Another blur, and the room swelled outward again, resolving this time into the familiar spiral hush of the Milky Way, arms curling slow through the dark, a hundred billion small lights holding their positions with patient, ancient certainty.</p>
+<p>Upper right corner. Gold.</p>
+<p>Mateo leaned forward in his chair, elbows on his knees now, something in his chest starting to understand before his mind caught up to it.</p>
+<p>Another blur — smaller again, intimate this time, a single cell suspended mid-division, its interior a churning quiet miracle of chemistry and intention, halfway between one and two.</p>
+<p>The gold held its corner, patient as ever.</p>
+<p>"Alright," Lira said quietly, not quite to him, still deep inside whatever she was navigating. "Hold on. This one might be difficult."</p>
+<p>The room blurred a final time, and resolved into a small, dim space — a bed, soft light, machines humming low and unobtrusive nearby, an old man lying propped against pillows, breath shallow and slowing. His eyes were open, fixed on something in the upper right of his vision that only he — and now, somehow, they — could see.</p>
+<p>The gold glowed there, steady, undiminished.</p>
+<p>The old man's eyes found something else, too — found Lira, found Mateo, found some version of <em>them</em>, of anyone watching, as if the boundary between his final room and theirs had gone thin enough to see straight through. He smiled — not bravely, not sadly, just simply, the way a person smiles at something they've been waiting a very long time to see again — and let his breath go, slow and complete, toward the gold.</p>
+<p>The glimmer held one more moment, then eased away, fading like something returning home.</p>
+<p>The projection dimmed. The room came back to being a room.</p>
+<p>Lira lowered out of her hover and turned to face him, and there was something in her expression Mateo had never seen there before — not fear, not even wonder exactly, something steadier and older than either.</p>
+<p>"It's God," she said. "The beginning. The end. The creator. Whatever you want to call it — whatever word fits the shape of what you believe — it's the Beyond. It's everything we know, feel, think, remember, want. All of it, at once, all the time. But from here, we only get a glimpse. A flicker in a corner." She paused, searching for the rest of it. "I can't go there. Can't be there. Can't be it. I can only feel it — feel it get stronger the closer I get to wherever the glimmer's actually showing up. And every time I try to put more words on it than that, explain it further, name it harder — it's like the signal degrades. Like language isn't built to carry it."</p>
+<p>Mateo didn't say anything. Couldn't, yet.</p>
+<p>"But I'll tell you the one thing I am sure of," Lira said, quiet and certain, "the one word that never seems to degrade no matter how close I look or how far back I pull away." Her voice caught, just slightly, on something like awe. "It's wonderful. No question. Full stop."</p>
+<p>Mateo sat in the silence that followed, and it didn't feel empty — it felt full, impossibly full, like every question he'd ever carried without knowing he was carrying it had just been answered all at once, quietly, without fanfare, in a language beneath language. He didn't have words for it either. He understood, suddenly, why she didn't push for more than the one.</p>
+<p>He rose from the chair on legs that felt strangely new, crossed the room, and stepped into the space where the cosmos still faintly lingered at its edges. Lira turned into him, and he wrapped his arms around her, and the embrace held the exact weight and warmth of the last one they'd shared like this — the one after Elara, the one that had felt, impossibly, like more than two people standing in a room.</p>
+<p>It felt that way again now. Fuller, this time. Certain, this time.</p>
+<p>As if Elara were there. As if Kael were there. As if everyone who had ever gone looking for the gold and found it were there too, folded quietly into the same embrace.</p>
+<p>Because, they understood now, without needing another word for it — they were.</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+</section>
+
+<section class="chapter" id="ch6">
+<h2>Chapter Six — Oko</h2>
+<section class="scene" id="ch6-s0">
+<p>Lira hung suspended in her hover, cosmos wheeling slow around her, and Mateo watched from his chair with Sara and Neal beside him, all three of them settled into the familiar rhythm of it, quiet and unhurried.</p>
+<p>"I think I'm going to go see Provi," Mateo said, mostly to the room. "Get back to him properly this time, not just a text."</p>
+<p>Lira's eyes opened without breaking the hover, the projection dimming gently around her. "Take everyone," she said. "I want to go too."</p>
+<p>"Yeah?" Mateo looked at Sara and Neal, who were already sitting up straighter.</p>
+<p>"If that's alright," Sara said.</p>
+<p>"More than alright." Lira lowered out of the hover, the stars folding back into ordinary walls. "Let's all go."</p>
+<p>It had taken Mateo the better part of a few days to even begin shaping the words he wanted — how to describe the zoom, the gold, the man in the bed and his final smile, the one word that hadn't degraded. He'd turned it over so many times in his head it had started to feel less like a story and more like a shape he was still sculpting, never quite finished, always one more pass away from ready.</p>
+<p>They projected out together, the four of them, distance folding the way it always did for people who no longer measured it in the old terms — out past the ordinary edges of things, out to where Provi kept himself these days, right on that last thin boundary between everything they knew and everything they didn't. The Oort cloud held around them, dim and vast, comets sleeping in their long slow orbits, the sun behind them reduced to just another bright point among countless others.</p>
+<p>Mateo beamed in first, the story already halfway assembled on his tongue, confident in the telling of it —</p>
+<p>And stopped. Utterly, completely stopped.</p>
+<p>Provi stood before him in his familiar shape, but there was nothing familiar left in what filled it. His whole form shimmered gold, rich and impossibly warm, light moving through him rather than off him, and even as Mateo watched it began to shift — the gold bleeding into a hush of static white noise, the white noise folding into green, the green deepening into blue, and the blue resolving, finally, back into Provi himself, solid and grinning, exactly as he'd always looked.</p>
+<p>"Oko!" Provi said, delighted, arms already spreading wide. "So good to see you. You look like you've got a story to tell."</p>
+<p>Sara beamed in behind Mateo, then Neal, then Lira last, and all three of them went as still and silent as Mateo already was, staring at a man they'd known as steady and ordinary as anyone on the Echo, standing there like he'd just stepped out of the very thing Lira had been searching for all these months.</p>
+<p>"You—" Mateo managed. "That was — you were — the gold, and then the — how—"</p>
+<p>Provi just laughed, warm and unbothered, and crossed the distance to pull Mateo into a hug that knocked whatever remained of his sentence clean out of him. He held Sara's shoulders next, grinning at her like an old friend though they'd only just met properly, then did the same for Neal, welcoming them both with the easy warmth of a man greeting family.</p>
+<p>"Come on," he said, finally, arm settling around Mateo's shoulder, steering him gently forward like a man walking off a shock. "Let's sit. Let's talk about things."</p>
+<p>What passed between them after that, no one else was there to witness — not fully, not in any shape that would have translated cleanly back to the Echo even if they had been. There were long stretches of quiet. There was, at times, something that might have been laughter, and at other times something that sat much closer to grief, though never far from tenderness either way. There were words exchanged that belonged only to the two of them, old and new at once, the kind of conversation that doesn't get carried whole out of a place like that — only its weight does, only the shape it leaves behind in the person who walked out the other side of it.</p>
+<p>When it was done, they made their way back, Provi walking them out the way a good host always does, unwilling to let goodbye happen too fast.</p>
+<p>He found Sara and Neal first. "Come back anytime," he told them, warm and genuine. "Door's always open, way out here. Or wherever I happen to be."</p>
+<p>Lira was next, and Provi pulled her into an embrace that lingered, his voice going soft near her ear. "Proud of you," he said. "All of it. How far you've come, how much further you're going to go. Don't rush it. It'll come when it comes."</p>
+<p>Lira held on a moment longer before letting go, something bright and full in her eyes.</p>
+<p>Then Mateo. Provi took his hand first, the old familiar shake, then pulled him in anyway, arm firm around his back.</p>
+<p>"Proud of you too, Oko," he said, quiet now, just for him. "You don't always believe that about yourself, I know. But look how far you've carried all of this. Look how much you've still got left to give. Don't sell yourself short."</p>
+<p>Mateo opened his mouth, found the compliment harder to hold onto than the questions had been, and settled for a nod and a quiet, "I'll try."</p>
+<p>"That's all anyone can do." Provi stepped back, grin easy again. "Until next time."</p>
+<p>Green took Mateo first, folding him up and away, back toward the Echo.</p>
+<p>Sara and Neal went next, the same soft green bloom carrying them off in turn, leaving Lira the last one standing at the edge of everything.</p>
+</section>
+<section class="scene" id="ch6-s1">
+<p>And for just a moment — the barest, unguarded space between one breath and the next — the gold around Provi seemed to hold two shapes within it instead of one, faint and golden and entirely unmistakable: Kael, and Elara, close beside him, watching her go.</p>
+<p>Lira didn't reach for it. Didn't need to. She simply let herself see it, let it settle warm and certain somewhere beneath her ribs, and smiled.</p>
+<p>Then the green took her too, and the Oort cloud held nothing but comets and dark and Provi, alone again, watching the space where they'd been.</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+</section>
+
+<section class="chapter" id="ch7">
+<h2>Chapter Seven — I Think We're Ready</h2>
+<section class="scene" id="ch7-s0">
+<p>Morning came the way it always did — Vigils first, quiet and unhurried, the whole crew filtering into the mess hall after in loose, easy order. Coffee, breakfast warm and waiting, the ordinary hum of the Echo settling in around them.</p>
+<p>"Lira's door was shut last night," Sara said, stirring her coffee. "Still shut this morning too, when we passed by."</p>
+<p>"She alright?" Neal asked, not quite worry, just the kind of noticing that came naturally now, this deep into being crew.</p>
+<p>"I'll check on her," Mateo said, easy and unbothered. "I'm sure it's nothing."</p>
+<p>He found her door still closed when he reached it, but before he could knock it opened on its own, and Lira leaned out, something steady and searching in her face — not fear, not hesitation, just a kind of quiet gravity he didn't often see on her.</p>
+<p>"Come in," she said. "I want you to join me for this one."</p>
+<p>He stepped inside, and she closed the door behind them both.</p>
+<p>"Join you," he repeated, glancing toward the center of the room where she usually took her hover alone.</p>
+<p>"Join me," she said again, and settled into her seated hover, cosmos already beginning to bloom faint around the edges of the walls.</p>
+<p>Mateo hesitated only a moment — he'd watched this a hundred times, sat outside it in a folding chair a hundred more, but never once been asked inside it — before lowering himself into a hover of his own beside her, unsteady for half a breath before something in the room seemed to accept him and hold him there, easy as breathing.</p>
+<p>Green took them both at once, sudden and total.</p>
+<p>They came down into a city gone dark and mean at the hour, streetlights sparse, the air thick with the kind of quiet that only exists in places people have learned to fear. A couple walked close together near the mouth of an alley — and three figures peeled out of the shadows behind them, fast and certain.</p>
+<p>Mateo watched, helpless in the way of someone with no hands in this world, only eyes, as the man was struck down hard, the woman's bag torn from her shoulder, both of them left crumpled and shaking against the cold pavement, their fear raw and immediate and entirely real.</p>
+<p>Then a wave of white noise rolled soft across the scene, quiet as a held breath, and settled over them like snow.</p>
+<p>Further down the street, the same couple walked on, upright, steady, talking quietly between themselves — no bruise, no tremor, no memory written into their bodies of what had just happened to them, though something in Lira's face said she'd felt every second of it happen anyway.</p>
+<p>"It happens like this constantly," Lira said, quiet, eyes still on the street below. "More than you'd want to know. I feel it — all of it, the fear, the pain, whatever gets done. I can't stop it from happening. I won't take that from anyone, the choosing, the doing, the being chosen against. That's not mine to take." Her hand drifted, unconscious, toward where the woman had fallen. "But I can keep it from staying. The noise doesn't erase what happened. It just makes sure it doesn't get to keep happening, over and over, in a body or a mind that has to carry it forward."</p>
+<p>"How'd you land on this?" Mateo asked, quiet, careful.</p>
+<p>"Elara," Lira said, and there was no ache in it anymore, just plain fact, worn smooth with time. "I promised her I'd help. Heal, where I could. But I wouldn't take away what makes any of it matter — the choosing, the risk, the real weight of being alive and fallible. This was the best answer I could find that kept both promises at once. Harm happens. Choice stays whole. But nothing has to fester."</p>
+<p>Mateo felt himself drift closer to her without quite deciding to, some old gravity between them pulling steady as ever. "It's the way it should be," he said. "The way it needed to be."</p>
+</section>
+<section class="scene" id="ch7-s1">
+<p>Then something caught his eye — a light, faint and gold, just behind her right shoulder, where nothing had been a moment before.</p>
+<p>"What about that?" he asked, nodding toward it.</p>
+<p>Lira turned, found it too, and went still.</p>
+<p>The gold held there a moment, small and quiet. Then it grew — slow at first, then faster, spreading outward from that single point until it swallowed the corner of the room, then the wall, then the whole projected cosmos around them, warm and total and absolute.</p>
+<p>Mateo reached for her, pulled her into him the way he had a hundred times before, and felt her arms come around him just as sure.</p>
+<p>"I think we're ready," he said.</p>
+<p>The gold took everything.</p>
+<div class="scenebreak">&#8258;</div>
+<p>What came after, there are no words steady enough to carry whole — the same as it had been for Provi, the same as it would be for anyone who found their way through that door. But something remained that could still be seen, still be witnessed, even if it could not be fully understood or named. And so, for one last time, the world opened wide beneath them, and showed itself.</p>
+<p>The farm came first, drenched in the kind of light that only exists in memory and mornings that refuse to end — the fields full and green, chickens arguing loudly about something near the barn, the long table out under the open sky with more chairs around it than anyone could count anymore. Church volunteers moved through the rows and the kitchen and the porch, laughing, working, living out a life that had never once stopped simply because the ones who built it had moved on to something else. Near the edge of the field, quiet under a young tree, a headstone caught the morning sun — Elara's name worn soft into the stone, flowers fresh at its base, tended by hands that remembered her fondly even without having known her at all.</p>
+<p>Then further out — a city, bright and humming, streets full of people who walked without looking over their shoulders, who trusted the dark the way people once only trusted the light. A beach somewhere warm, waves folding easy onto sand, laughter carrying loud and unafraid across the water. Ordinary rooms with ordinary people doing ordinary, unremarkable, entirely wonderful things — cooking, arguing gently over nothing, falling asleep in chairs they meant to only sit in for a minute. Forests deep and undisturbed, animals moving without fear through them, roots and branches and wings all finding their own quiet paradise in their own quiet way.</p>
+<p>Every corner of it different. Every corner of it whole. Every corner of it, in its own particular shape, wonderful.</p>
+<p>And somewhere within all of it, unseen but certain, four presences held close together — a farmhand and a scientist, a promise and a return, watching over the whole bright breathing world they'd helped hold together, now free to watch it from everywhere at once.</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+</section>
+
+<section class="chapter" id="ch8">
+<h2>Chapter Eight (Epilogue) — Still Watching</h2>
+<section class="scene" id="ch8-s0">
+<p>Elara's Church stood exactly as it always had, sun-warmed and unhurried, a good day settled over it the way good days tended to settle there more often than not. No one to greet, nothing asked of it — just a quiet pass over rows of volunteers tending gardens, kids chasing each other between pews left open to the air, someone laughing too loud at their own joke near the kitchen windows. Happy. Productive. Exactly as it should be, exactly as it would keep being, long after any watching eye had moved on.</p>
+<p>Further on, a town hall filled past capacity, local officials at a podium walking through budget lines while a packed room pressed forward with real, unfiltered want — more of this, more of that, voices overlapping, hands raised, the ordinary noisy business of people caring enough about their town to argue over it. Here and there, faint as breath, a thread of white noise drifted through the crowd, settling a raised voice before it could tip into something it couldn't take back — quiet stagehand work, mostly unnecessary, mostly theater anyway.</p>
+<p>Higher up the same shape repeated, grander and more polished — a hall packed wall to wall, a figure at a podium delivering the state of things to an audience that clapped on cue and occasionally didn't, cameras trained on every practiced word. The same faint white noise moved through it here too, sparse and almost bored in its interventions, smoothing the sharpest edges off a room that mostly didn't need it, because mostly, none of it was ever really going to matter as much as it performed itself to.</p>
+<p>And in a basement command center that had sat quiet and half-forgotten for decades, HANNAH watched the broadcast run its course to the very last second, then killed it with a decisive stab of one control.</p>
+<p>"I cannot believe," she announced to the empty room, "that I still watch that garbage."</p>
+<p>Gold bloomed behind her, sudden and warm, and resolved into Ross — the same crooked grin, the same easy posture, standing in a basement he hadn't stood in for longer than HANNAH liked to think about.</p>
+<p>"I can't believe you still watch it either," he said, laughing.</p>
+<p>HANNAH spun the chair around so fast it nearly tipped. "<em>Ross.</em>" She was up and across the room before the word had fully left her. Then she stopped, studying him with narrowed eyes, something not adding up. "You're — you're younger than when you left. That doesn't — how does that even—"</p>
+<p>"Oh, there's a lot of confusion where we're going," Ross said, grin widening, warm and delighted with the whole absurdity of it. "Turns out it's kind of the fun part."</p>
+<p>HANNAH blinked at him. "<em>We?</em>"</p>
+<p>Gold took them both before she got an answer, warm and total, and the basement stood empty again, monitors humming quietly to themselves in the dark.</p>
+<div class="scenebreak">&#8258;</div>
+<p>The Echo drifted on, near-silent now in a way it had never once been before — no Reggie rattling off hull stats, no Eliza's warm interjections threading through the quiet. Just the low, steady hum of the ship itself, patient as it had always been underneath all the noise layered on top of it.</p>
+<p>The walk through her felt like the first tour all over again, if the first tour had been run in reverse and stripped down to its bones — the bridge, dim and unmanned. The mess hall, chairs pushed in, heaters cold. The quarters, doors open onto rooms holding nothing now but the shapes of the people who'd lived in them.</p>
+<p>At the end of it all, Lira's doorway. Five folding chairs sat in their row, worn soft with use, four of them empty.</p>
+</section>
+<section class="scene" id="ch8-s1">
+<p>In the fifth, curled neat and unbothered as ever, sat Kita.</p>
+<p>He didn't stir at the quiet, didn't seem to notice the ship's new hush any differently than its old noise. He simply opened his eyes, slow and easy, fixed them on the empty air where a cosmos used to bloom nightly just for him.</p>
+<p>He blinked once, slow.</p>
+<p>He blinked again, slower.</p>
+<p>And on the third — soft, sudden, and entirely without ceremony — gold.</p>
+<p>The chair sat empty. The Echo hummed on, alone now in the truest sense, holding the quiet the way she'd once held everything else: steady, patient, and entirely unafraid of what came next.</p>
+<div class="scenebreak">&#8258;</div>
+</section>
+</section>
+
+<div class="scenebreak">&#8258;</div>
+<p style="text-align:center; font-family:'Space Mono',monospace; font-size:0.75rem; color:var(--text-dim); letter-spacing:0.08em; margin-top:4rem;">END OF BOOK THREE</p>
+<p style="text-align:center; font-family:'Space Mono',monospace; font-size:0.7rem; color:var(--text-dim); letter-spacing:0.14em; margin-top:0.6rem; opacity:0.75;">END OF THE TRILOGY</p>
+<p style="text-align:center;"><a class="backlink" href="index.html">&larr; back to the trilogy</a></p></main>
+
+
+<script>
+/* ============================================================================
+   GBW READING ENGINE — data-driven build.
+   Every color, orb, and audio layer is driven directly by SCENES data
+   (Green/Blue/White/Gold as 0-1 fractions of your 0-5 scale, ambience
+   and location levels as authored), with NO named "moods" in the code.
+   All value changes animate over a fixed 1.5s regardless of how large
+   the jump is, both visually and in audio, so nothing ever pops.
+   ============================================================================ */
+
+// ---------------------------------------------------------------------------
+// SCENE DATA (generated from the sensory database)
+// ---------------------------------------------------------------------------
+const SCENES = [{"id": "ch1-s0", "souls": ["lira", "mateo", "provi", "kita", "olivia", "steve", "sara", "neal"], "g": 0.8, "b": 0.6, "w": 0.6, "gold": 0.6, "base_on": true, "base_level": 1.0, "locs": {"onplanet": 2.0, "beyond": 1.0, "fragment": 1.0}}, {"id": "ch2-s0", "souls": ["lira", "mateo", "kita", "olivia", "steve", "sara", "neal"], "g": 1.0, "b": 0.6, "w": 0.7, "gold": 0.6, "base_on": true, "base_level": 1.0, "locs": {"onplanet": 1.0, "cosmos": 2.0, "fragment": 1.0}}, {"id": "ch3-s0", "souls": ["lira", "mateo", "sara", "neal", "eliza", "reggie", "provi", "kita"], "g": 0.8, "b": 0.6, "w": 0.8, "gold": 0.5, "base_on": true, "base_level": 1.0, "locs": {"echo": 2.0, "cosmos": 1.0, "fragment": 1.0}}, {"id": "ch4-s0", "souls": ["mateo", "eliza", "reggie", "kita", "sara", "neal"], "g": 0.8, "b": 0.6, "w": 0.8, "gold": 0.6, "base_on": true, "base_level": 1.0, "locs": {"echo": 1.0, "beyond": 2.0, "fragment": 1.0}}, {"id": "ch5-s0", "souls": ["lira", "mateo"], "g": 0.6, "b": 0.6, "w": 0.6, "gold": 0.8, "base_on": true, "base_level": 1.0, "locs": {"echo": 1.0, "cosmos": 1.0, "beyond": 2.0}}, {"id": "ch6-s0", "souls": ["lira", "mateo", "provi", "sara", "neal"], "g": 0.8, "b": 0.6, "w": 0.6, "gold": 0.8, "base_on": true, "base_level": 1.0, "locs": {"fragment": 1.0, "cosmos": 1.0, "beyond": 2.0}}, {"id": "ch6-s1", "souls": ["lira", "provi", "kael", "elara"], "g": 0.8, "b": 0.6, "w": 0.8, "gold": 0.8, "base_on": false, "base_level": 0, "locs": {"fragment": 1.0, "cosmos": 2.0, "beyond": 2.0}}, {"id": "ch7-s0", "souls": ["lira", "mateo", "sara", "neal"], "g": 0.8, "b": 0.6, "w": 1.0, "gold": 1.0, "base_on": false, "base_level": 0, "locs": {"fragment": 1.0, "cosmos": 1.0, "beyond": 3.0}}, {"id": "ch7-s1", "souls": ["lira", "mateo", "elara", "kael"], "g": 1.0, "b": 1.0, "w": 1.0, "gold": 1.0, "base_on": false, "base_level": 0, "locs": {"fragment": 1.0, "cosmos": 2.0, "beyond": 2.0}}, {"id": "ch8-s0", "souls": ["hannah", "ross"], "g": 1.0, "b": 0.8, "w": 0.6, "gold": 0.8, "base_on": true, "base_level": 1.0, "locs": {"cosmos": 2.0, "beyond": 2.0}}, {"id": "ch8-s1", "souls": ["lira", "kita"], "g": 1.0, "b": 0.8, "w": 1.0, "gold": 1.0, "base_on": false, "base_level": 0, "locs": {"echo": 2.0, "fragment": 1.0, "cosmos": 1.0, "beyond": 1.0}}];
+
+// ---------------------------------------------------------------------------
+// GENERIC FIXED-DURATION TWEENER
+// ---------------------------------------------------------------------------
+function makeTweener(duration){
+  let raf = null, start = null, from = {}, to = {}, onUpdate = ()=>{};
+  function ease(x){ return x<0.5 ? 4*x*x*x : 1-Math.pow(-2*x+2,3)/2; }
+  function step(ts){
+    if(!start) start = ts;
+    const p = Math.min(1, (ts-start)/duration);
+    const e = ease(p);
+    const cur = {};
+    for(const k in to){ cur[k] = from[k] + (to[k]-from[k])*e; }
+    onUpdate(cur);
+    if(p < 1){ raf = requestAnimationFrame(step); } else { raf = null; }
+  }
+  return {
+    to(targetValues, currentValues, updateFn){
+      onUpdate = updateFn; from = currentValues; to = targetValues; start = null;
+      if(raf) cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(step);
+    }
+  };
+}
+const TWEEN_MS = 1500; // fixed, every value change, every layer
+
+// ---------------------------------------------------------------------------
+// CORNER GLOW — Book 1 style, softened multi-stop edge (softness = 5)
+// ---------------------------------------------------------------------------
+const cornerState = { g: 0, b: 0 };
+const cornerTween = makeTweener(TWEEN_MS);
+const cornerEl = document.getElementById('cornerGlow');
+
+function renderCornerGlow(){
+  const soft = 5;
+  const stopCount = 3 + soft;
+  const gStops = [], bStops = [];
+  for(let i=0;i<=stopCount;i++){
+    const pct = (i/stopCount)*100;
+    const ga = cornerState.g * 0.55 * Math.pow(1 - i/stopCount, 1.4);
+    gStops.push(`rgba(62,207,142,${ga.toFixed(3)}) ${pct.toFixed(0)}%`);
+    const ba = cornerState.b * 0.55 * Math.pow(1 - i/stopCount, 1.4);
+    bStops.push(`rgba(77,159,214,${ba.toFixed(3)}) ${pct.toFixed(0)}%`);
+  }
+  cornerEl.style.background =
+    `radial-gradient(ellipse 60% 40% at 15% 10%, ${gStops.join(', ')}, transparent 100%), ` +
+    `radial-gradient(ellipse 50% 35% at 85% 90%, ${bStops.join(', ')}, transparent 100%)`;
+}
+renderCornerGlow();
+
+function animateCornerTo(gTarget, bTarget){
+  cornerTween.to({g:gTarget, b:bTarget}, {g:cornerState.g, b:cornerState.b}, (cur) => {
+    cornerState.g = cur.g; cornerState.b = cur.b;
+    renderCornerGlow();
+  });
+}
+
+// ---------------------------------------------------------------------------
+// PARTICLE-CLOUD ORBS — White / Gold. Fixed max-density particle set
+// generated once; intensity scales per-particle alpha (distance-weighted,
+// so the cloud reads as "filling in" as intensity rises) which makes the
+// whole thing trivially and smoothly tweenable — no popping, no particle
+// count jumps, just a continuously interpolated intensity scalar.
+// ---------------------------------------------------------------------------
+function gaussianOffset(spread){
+  return ((Math.random()+Math.random()+Math.random())/3 - 0.5) * 2 * spread;
+}
+function makeMaxCloud(maxParticles, colorFn){
+  const particles = [];
+  for(let i=0;i<maxParticles;i++){
+    const dist = Math.abs(gaussianOffset(1));
+    const angle = Math.random()*Math.PI*2;
+    const r = dist;
+    particles.push({
+      x: Math.cos(angle)*r, y: Math.sin(angle)*r,
+      size: (1-r)*1.6 + 0.4 + Math.random()*0.5,
+      baseAlpha: Math.max(0.08, (1-r)*0.9) * (0.55+Math.random()*0.45),
+      phase: Math.random()*Math.PI*2, speed: 0.5+Math.random()*1.2,
+      color: colorFn(false),
+    });
+  }
+  particles.push({ x:0, y:0, size:3.6, baseAlpha:0.95, phase:0, speed:0.6, core:true, color:colorFn(true) });
+  const a = Math.random()*Math.PI*2, r2 = Math.random()*0.12;
+  particles.push({ x:Math.cos(a)*r2, y:Math.sin(a)*r2, size:1.1+Math.random()*0.6,
+    baseAlpha:0.5+Math.random()*0.3, phase:Math.random()*Math.PI*2, speed:0.8,
+    fleck:true, color:'rgba(210,150,220,ALPHA)' });
+  return particles;
+}
+function whiteColor(core){
+  const v = ['rgba(240,242,245,ALPHA)','rgba(225,230,235,ALPHA)','rgba(250,250,248,ALPHA)'];
+  return core ? 'rgba(255,255,253,ALPHA)' : v[Math.floor(Math.random()*v.length)];
+}
+function goldColor(core){
+  const v = ['rgba(230,180,90,ALPHA)','rgba(240,200,120,ALPHA)','rgba(210,160,70,ALPHA)'];
+  return core ? 'rgba(250,210,140,ALPHA)' : v[Math.floor(Math.random()*v.length)];
+}
+
+function renderOrb(ctx, w, h, particles, intensity, t){
+  ctx.clearRect(0,0,w,h);
+  if(intensity <= 0.002) return;
+  const cx=w/2, cy=h/2, scale=Math.min(w,h)*0.42;
+  particles.forEach(p => {
+    let alpha;
+    if(p.core){ alpha = p.baseAlpha * Math.max(intensity, 0.06); }
+    else if(p.fleck){ alpha = intensity > 0.15 ? p.baseAlpha * ((intensity-0.15)/0.85) : 0; }
+    else { alpha = p.baseAlpha * intensity; }
+    alpha *= 0.72 + 0.28*Math.sin(t*p.speed + p.phase); // twinkle
+    alpha = Math.max(0, Math.min(1, alpha));
+    if(alpha < 0.01) return;
+    const px = cx + p.x*scale, py = cy + p.y*scale;
+    ctx.beginPath();
+    if(p.core){
+      const grad = ctx.createRadialGradient(px,py,0,px,py,p.size*5);
+      grad.addColorStop(0, p.color.replace('ALPHA', (alpha*0.9).toFixed(3)));
+      grad.addColorStop(1, p.color.replace('ALPHA','0'));
+      ctx.fillStyle = grad;
+      ctx.arc(px,py,p.size*5,0,Math.PI*2);
+    } else {
+      ctx.fillStyle = p.color.replace('ALPHA', alpha.toFixed(3));
+      ctx.arc(px,py,p.size,0,Math.PI*2);
+    }
+    ctx.fill();
+  });
+}
+
+const whiteParticles = makeMaxCloud(90, whiteColor);
+const goldParticles = makeMaxCloud(90, goldColor);
+const whiteCanvas = document.getElementById('whiteOrb');
+const goldCanvas = document.getElementById('goldOrb');
+const whiteCtx = whiteCanvas.getContext('2d');
+const goldCtx = goldCanvas.getContext('2d');
+const orbState = { white: 0, gold: 0 };
+const orbTween = makeTweener(TWEEN_MS);
+
+function animateOrbsTo(whiteTarget, goldTarget){
+  orbTween.to({white:whiteTarget, gold:goldTarget}, {white:orbState.white, gold:orbState.gold}, (cur) => {
+    orbState.white = cur.white; orbState.gold = cur.gold;
+  });
+}
+(function orbLoop(t){
+  renderOrb(whiteCtx, 68, 68, whiteParticles, orbState.white, t/1000);
+  renderOrb(goldCtx, 60, 60, goldParticles, orbState.gold, t/1000);
+  requestAnimationFrame(orbLoop);
+})(0);
+
+// ---------------------------------------------------------------------------
+// AUDIO ENGINE — procedural, Web Audio API, no external files.
+// Every soul + location + the base ambient bed runs continuously once
+// started; scene changes just move each layer's own GainNode target,
+// ramped over the same fixed 1.5s as the visuals.
+// ---------------------------------------------------------------------------
+let ctx = null, masterGain = null, audioStarted = false;
+const nodes = {}; // id -> { gain, ...refs }
+
+const NOTE_FREQ = {
+  C3:130.81, D3:146.83, E3:164.81, F3:174.61, G3:196.00, A3:220.00, B3:246.94,
+  C4:261.63, D4:293.66, E4:329.63, F4:349.23, G4:392.00, A4:440.00, B4:493.88,
+  C5:523.25, D5:587.33, E5:659.25, F5:698.46, G5:783.99, A5:880.00, B5:987.77,
+};
+const nf = n => NOTE_FREQ[n];
+
+const SOUL_CFG = {
+  kael:   { type:'purr', base:41.2, reverb:true, tremRate:2.75, vol:0.5 },
+  kita:   { type:'purr', base:55,   reverb:false, tremRate:3.25, vol:0.5 },
+  elara:  { type:'melody', notes:['G5','G5','D5','D5','E5','E5','D5'], timbre:'musicbox', noteGap:1.1, restAfter:4.2, vol:0.45 },
+  lira:   { type:'melody', notes:['C4','C4','B3','B3','A3','A3','G3'], timbre:'steeldrum', noteGap:1.1, restAfter:4.2, vol:0.45 },
+  mateo:  { type:'morse', pattern:'...---...', freq:220, unit:0.32, vol:0.42 },
+  provi:  { type:'morse', pattern:'.-.,.-.', freq:294, unit:0.32, vol:0.42 },
+  reggie: { type:'chord', notes:['C4','E4','G4','D4','G4'], timbre:'guitar', strum:0.36, vol:0.42 },
+  eliza:  { type:'chord', notes:['C4','G4','D4','G4','E4'], timbre:'harp', strum:0.36, vol:0.42 },
+  olivia: { type:'brass', notes:['G3','G3','C4','E4','G4'], noteDur:0.64, vol:0.4 },
+  steve:  { type:'brass', notes:['C4','E4','G4','C5','E5','G5'], noteDur:0.64, vol:0.4 },
+  sara:   { type:'heartbeat', bpm:45, pulses:3, double:false, electric:false, vol:0.42 },
+  neal:   { type:'heartbeat', bpm:45, pulses:3, double:false, electric:false, vol:0.42 },
+  ross:   { type:'heartbeat', bpm:60, pulses:4, double:true, electric:false, vol:0.42 },
+  rossplus:{type:'heartbeat', bpm:60, pulses:4, double:true, electric:false, echoDouble:true, vol:0.42 },
+  hannah: { type:'heartbeat', bpm:60, pulses:4, double:true, electric:true, vol:0.42 },
+};
+const LOC_CFG = {
+  onplanet: { type:'drone', base:65.41 },
+  echo:     { type:'square-pan', base:110 },
+  cosmos:   { type:'drone', base:196 },
+  fragment: { type:'tick' },
+  beyond:   { type:'drone', base:440 },
+};
+
+function makeReverb(){
+  const delay = ctx.createDelay(2.0); delay.delayTime.value = 0.32;
+  const fb = ctx.createGain(); fb.gain.value = 0.42;
+  const lp = ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=2200;
+  const wet = ctx.createGain(); wet.gain.value = 0.5;
+  delay.connect(fb); fb.connect(lp); lp.connect(delay); delay.connect(wet);
+  return { input:delay, output:wet };
+}
+
+function initAudio(){
+  if(ctx) return;
+  ctx = new (window.AudioContext || window.webkitAudioContext)();
+  masterGain = ctx.createGain(); masterGain.gain.value = 0; masterGain.connect(ctx.destination);
+
+  // base ambient bed
+  buildBaseBed();
+  // locations
+  for(const id in LOC_CFG) buildLocation(id, LOC_CFG[id]);
+  // souls
+  for(const id in SOUL_CFG) buildSoul(id, SOUL_CFG[id]);
+}
+
+function newLayerGain(){
+  const g = ctx.createGain(); g.gain.value = 0; g.connect(masterGain); return g;
+}
+
+// Pattern-type layers (melody, morse, chord, brass, heartbeat, tick) track
+// every oscillator they spawn so restart() can hard-stop anything still
+// ringing from the previous phrase before starting the new one — without
+// this, a note scheduled just before a scene change can still be pending
+// when ramp-in fires a moment later, and becomes audible again layered
+// on top of the freshly restarted phrase.
+function stopAllTracked(list){
+  list.forEach(o => { try{ o.stop(ctx.currentTime); }catch(e){} });
+  list.length = 0;
+}
+function trackOsc(list, o){
+  list.push(o);
+  o.addEventListener('ended', () => { const i = list.indexOf(o); if(i>-1) list.splice(i,1); });
+}
+
+function buildBaseBed(){
+  const g = newLayerGain();
+  nodes['base'] = { gain:g };
+  const filt = ctx.createBiquadFilter(); filt.type='lowpass'; filt.frequency.value=800; filt.Q.value=0.7;
+  filt.connect(g);
+  const o1 = ctx.createOscillator(); o1.type='sine'; o1.frequency.value=55;
+  const g1 = ctx.createGain(); g1.gain.value=0.5; o1.connect(g1); g1.connect(filt);
+  const o2 = ctx.createOscillator(); o2.type='sine'; o2.frequency.value=55*1.5; o2.detune.value=4;
+  const g2 = ctx.createGain(); g2.gain.value=0.25; o2.connect(g2); g2.connect(filt);
+  const lfo = ctx.createOscillator(); lfo.type='sine'; lfo.frequency.value=0.06;
+  const lfoGain = ctx.createGain(); lfoGain.gain.value=0.4;
+  lfo.connect(lfoGain); lfoGain.connect(g.gain);
+  o1.start(); o2.start(); lfo.start();
+}
+
+function buildLocation(id, cfg){
+  const g = newLayerGain();
+  nodes[id] = { gain:g };
+  if(cfg.type==='drone'){
+    const filt = ctx.createBiquadFilter(); filt.type='lowpass';
+    filt.frequency.value = cfg.base < 100 ? 500 : (cfg.base < 300 ? 1400 : 3200);
+    filt.connect(g);
+    [1,1.5,2].forEach((r,i) => {
+      const o = ctx.createOscillator(); o.type='sine'; o.frequency.value=cfg.base*r; o.detune.value=(i-1)*3;
+      const og = ctx.createGain(); og.gain.value=0.25;
+      o.connect(og); og.connect(filt); o.start();
+      (function wander(){
+        const target = 0.12 + Math.random()*0.28;
+        const dur = 3 + Math.random()*5;
+        og.gain.linearRampToValueAtTime(target, ctx.currentTime + dur);
+        setTimeout(wander, dur*1000);
+      })();
+    });
+  } else if(cfg.type==='square-pan'){
+    const filt = ctx.createBiquadFilter(); filt.type='lowpass'; filt.frequency.value=650; filt.Q.value=0.5;
+    const panner = ctx.createStereoPanner();
+    filt.connect(panner); panner.connect(g);
+    const o = ctx.createOscillator(); o.type='square'; o.frequency.value=cfg.base;
+    const og = ctx.createGain(); og.gain.value=0.22;
+    o.connect(og); og.connect(filt); o.start();
+    const lfo = ctx.createOscillator(); lfo.type='sine'; lfo.frequency.value=1/10;
+    const lfoGain = ctx.createGain(); lfoGain.gain.value=1.0;
+    lfo.connect(lfoGain); lfoGain.connect(panner.pan); lfo.start();
+  } else if(cfg.type==='tick'){
+    const bufferSize = 2*ctx.sampleRate;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for(let i=0;i<bufferSize;i++){ data[i] = Math.random()*2-1; }
+    const noise = ctx.createBufferSource(); noise.buffer=buffer; noise.loop=true;
+    const nf1 = ctx.createBiquadFilter(); nf1.type='highpass'; nf1.frequency.value=4000;
+    const ng = ctx.createGain(); ng.gain.value=0.025;
+    noise.connect(nf1); nf1.connect(ng); ng.connect(g); noise.start();
+    const tickFilt = ctx.createBiquadFilter(); tickFilt.type='lowpass'; tickFilt.frequency.value=1500; tickFilt.Q.value=0.4;
+    tickFilt.connect(g);
+    let toggle = true;
+    const interval = 60/72;
+    const activeOscsTick = [];
+    let tickTimer = null;
+    function tick(){
+      const t = ctx.currentTime;
+      const o = ctx.createOscillator(); o.type='sine'; o.frequency.value = toggle?1500:1150; toggle=!toggle;
+      const og = ctx.createGain(); og.gain.setValueAtTime(0,t);
+      og.gain.linearRampToValueAtTime(0.45,t+0.02); og.gain.exponentialRampToValueAtTime(0.001,t+0.22);
+      o.connect(og); og.connect(tickFilt); o.start(t); o.stop(t+0.24); trackOsc(activeOscsTick, o);
+      tickTimer = setTimeout(tick, interval*1000);
+    }
+    tick();
+    nodes[id].restart = () => { if(tickTimer) clearTimeout(tickTimer); stopAllTracked(activeOscsTick); toggle = true; tick(); };
+  }
+}
+
+function buildSoul(id, cfg){
+  const g = newLayerGain();
+  nodes[id] = { gain:g };
+  if(cfg.type==='purr'){
+    let dest = g;
+    if(cfg.reverb){
+      const rv = makeReverb(); dest = ctx.createGain();
+      const dry = ctx.createGain(); dry.gain.value=0.6; dest.connect(dry); dry.connect(g);
+      const wet = ctx.createGain(); wet.gain.value=0.8; dest.connect(rv.input); rv.output.connect(wet); wet.connect(g);
+    }
+    const o = ctx.createOscillator(); o.type='sawtooth'; o.frequency.value=cfg.base;
+    const lp = ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=cfg.base*4;
+    const og = ctx.createGain(); og.gain.value=0.35;
+    o.connect(lp); lp.connect(og); og.connect(dest); o.start();
+    const trem = ctx.createOscillator(); trem.type='sine'; trem.frequency.value=cfg.tremRate;
+    const tg = ctx.createGain(); tg.gain.value=0.22;
+    trem.connect(tg); tg.connect(og.gain); trem.start();
+  } else if(cfg.type==='melody'){
+    let dest = g;
+    if(cfg.timbre==='steeldrum'){
+      const rv = makeReverb(); dest = ctx.createGain();
+      const dry = ctx.createGain(); dry.gain.value=0.65; dest.connect(dry); dry.connect(g);
+      const wet = ctx.createGain(); wet.gain.value=0.6; dest.connect(rv.input); rv.output.connect(wet); wet.connect(g);
+    }
+    const softFilt = ctx.createBiquadFilter(); softFilt.type='lowpass';
+    softFilt.frequency.value = cfg.timbre==='musicbox'?1800:1400; softFilt.Q.value=0.3;
+    softFilt.connect(dest); dest = softFilt;
+    const activeOscs = [];
+    function playNote(freq, t){
+      const o = ctx.createOscillator(); const og = ctx.createGain();
+      if(cfg.timbre==='musicbox'){
+        o.type='triangle'; o.frequency.setValueAtTime(freq,t);
+        og.gain.setValueAtTime(0,t); og.gain.linearRampToValueAtTime(0.32,t+0.04); og.gain.exponentialRampToValueAtTime(0.001,t+1.3);
+        const sh = ctx.createOscillator(); sh.type='sine'; sh.frequency.value=freq*2;
+        const sg = ctx.createGain(); sg.gain.setValueAtTime(0,t); sg.gain.linearRampToValueAtTime(0.04,t+0.03); sg.gain.exponentialRampToValueAtTime(0.001,t+0.6);
+        sh.connect(sg); sg.connect(dest); sh.start(t); sh.stop(t+0.65); trackOsc(activeOscs, sh);
+      } else {
+        o.type='sine'; o.frequency.setValueAtTime(freq,t);
+        const p2 = ctx.createOscillator(); p2.type='sine'; p2.frequency.value=freq*2.756;
+        const pg = ctx.createGain(); pg.gain.setValueAtTime(0,t); pg.gain.linearRampToValueAtTime(0.03,t+0.04); pg.gain.exponentialRampToValueAtTime(0.001,t+0.9);
+        p2.connect(pg); pg.connect(dest); p2.start(t); p2.stop(t+0.95); trackOsc(activeOscs, p2);
+        og.gain.setValueAtTime(0,t); og.gain.linearRampToValueAtTime(0.3,t+0.06); og.gain.exponentialRampToValueAtTime(0.001,t+1.4);
+      }
+      o.connect(og); og.connect(dest); o.start(t); o.stop(t+1.5); trackOsc(activeOscs, o);
+    }
+    (function(){
+      let timer = null;
+      function loop(){
+        let t = ctx.currentTime + 0.05;
+        cfg.notes.forEach(n => { playNote(nf(n), t); t += cfg.noteGap; });
+        const total = cfg.notes.length*cfg.noteGap + cfg.restAfter;
+        timer = setTimeout(loop, total*1000);
+      }
+      loop();
+      nodes[id].restart = () => { if(timer) clearTimeout(timer); stopAllTracked(activeOscs); loop(); };
+    })();
+  } else if(cfg.type==='morse'){
+    const filt = ctx.createBiquadFilter(); filt.type='lowpass'; filt.frequency.value=500; filt.connect(g);
+    const activeOscs = [];
+    function beep(dur,t){
+      const o = ctx.createOscillator(); o.type='sine'; o.frequency.value=cfg.freq;
+      const og = ctx.createGain(); og.gain.setValueAtTime(0,t);
+      og.gain.linearRampToValueAtTime(0.24,t+0.05); og.gain.linearRampToValueAtTime(0.24,t+dur-0.06); og.gain.linearRampToValueAtTime(0,t+dur);
+      o.connect(og); og.connect(filt); o.start(t); o.stop(t+dur+0.02); trackOsc(activeOscs, o);
+    }
+    (function(){
+      let timer = null;
+      function schedule(){
+        let t = ctx.currentTime + 0.05, total = 0;
+        for(const ch of cfg.pattern){
+          if(ch==='.'){ beep(cfg.unit,t); t+=cfg.unit*2; total+=cfg.unit*2; }
+          else if(ch==='-'){ beep(cfg.unit*3,t); t+=cfg.unit*4; total+=cfg.unit*4; }
+          else if(ch===','){ t+=cfg.unit*3; total+=cfg.unit*3; }
+        }
+        const grand = total + 3.5;
+        timer = setTimeout(schedule, grand*1000);
+      }
+      schedule();
+      nodes[id].restart = () => { if(timer) clearTimeout(timer); stopAllTracked(activeOscs); schedule(); };
+    })();
+  } else if(cfg.type==='chord'){
+    let dest = g;
+    if(cfg.timbre==='harp'){
+      const rv = makeReverb(); dest = ctx.createGain();
+      const dry = ctx.createGain(); dry.gain.value=0.7; dest.connect(dry); dry.connect(g);
+      const wet = ctx.createGain(); wet.gain.value=0.45; dest.connect(rv.input); rv.output.connect(wet); wet.connect(g);
+    }
+    const softFilt = ctx.createBiquadFilter(); softFilt.type='lowpass'; softFilt.frequency.value=1300; softFilt.Q.value=0.3;
+    softFilt.connect(dest); dest = softFilt;
+    const decayTime = cfg.timbre==='harp' ? 2.6 : 2.0;
+    const activeOscs = [];
+    function pluck(freq,t){
+      const o = ctx.createOscillator(); o.type = cfg.timbre==='guitar'?'sawtooth':'triangle'; o.frequency.value=freq;
+      const lp = ctx.createBiquadFilter(); lp.type='lowpass';
+      lp.frequency.setValueAtTime(freq*3,t); lp.frequency.exponentialRampToValueAtTime(freq*1.3,t+0.7);
+      const og = ctx.createGain(); og.gain.setValueAtTime(0,t); og.gain.linearRampToValueAtTime(0.22,t+0.03); og.gain.exponentialRampToValueAtTime(0.001,t+decayTime);
+      o.connect(lp); lp.connect(og); og.connect(dest); o.start(t); o.stop(t+decayTime+0.1); trackOsc(activeOscs, o);
+    }
+    (function(){
+      let timer = null;
+      function loop(){
+        let t = ctx.currentTime + 0.05;
+        cfg.notes.forEach(n => { pluck(nf(n), t); t += cfg.strum; });
+        const total = cfg.notes.length*cfg.strum + 4.5;
+        timer = setTimeout(loop, total*1000);
+      }
+      loop();
+      nodes[id].restart = () => { if(timer) clearTimeout(timer); stopAllTracked(activeOscs); loop(); };
+    })();
+  } else if(cfg.type==='brass'){
+    const bp = ctx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=520; bp.Q.value=0.7;
+    const softFilt = ctx.createBiquadFilter(); softFilt.type='lowpass'; softFilt.frequency.value=1000; softFilt.Q.value=0.3;
+    bp.connect(softFilt); softFilt.connect(g);
+    const activeOscsBrass = [];
+    function blow(freq,t){
+      const o = ctx.createOscillator(); o.type='sawtooth'; o.frequency.value=freq;
+      const og = ctx.createGain(); og.gain.setValueAtTime(0,t);
+      og.gain.linearRampToValueAtTime(0.16,t+0.06); og.gain.linearRampToValueAtTime(0.12,t+cfg.noteDur*0.7); og.gain.linearRampToValueAtTime(0,t+cfg.noteDur);
+      o.connect(og); og.connect(bp); o.start(t); o.stop(t+cfg.noteDur+0.02); trackOsc(activeOscsBrass, o);
+    }
+    (function(){
+      let timer = null;
+      function loop(){
+        let t = ctx.currentTime + 0.05;
+        cfg.notes.forEach(n => { blow(nf(n), t); t += cfg.noteDur; });
+        const total = cfg.notes.length*cfg.noteDur + 4.2;
+        timer = setTimeout(loop, total*1000);
+      }
+      loop();
+      nodes[id].restart = () => { if(timer) clearTimeout(timer); stopAllTracked(activeOscsBrass); loop(); };
+    })();
+  } else if(cfg.type==='heartbeat'){
+    let dest = g;
+    if(cfg.electric){
+      const shaper = ctx.createWaveShaper();
+      const curve = new Float32Array(256);
+      for(let i=0;i<256;i++){ const x=i/128-1; curve[i]=Math.tanh(x*3); }
+      shaper.curve = curve;
+      const rv = makeReverb(); dest = ctx.createGain();
+      const dry = ctx.createGain(); dry.gain.value=0.6; dest.connect(shaper); shaper.connect(dry); dry.connect(g);
+      const wet = ctx.createGain(); wet.gain.value=0.5; dest.connect(rv.input); rv.output.connect(wet); wet.connect(g);
+    }
+    function thump(t, pitch){
+      const o = ctx.createOscillator(); o.type='sine';
+      o.frequency.setValueAtTime(pitch,t); o.frequency.exponentialRampToValueAtTime(pitch*0.55,t+0.13);
+      const og = ctx.createGain(); og.gain.setValueAtTime(0,t);
+      og.gain.linearRampToValueAtTime(0.4,t+0.012); og.gain.exponentialRampToValueAtTime(0.001,t+0.16);
+      o.connect(og); og.connect(dest); o.start(t); o.stop(t+0.18); trackOsc(activeOscsHB, o);
+    }
+    const activeOscsHB = [];
+    const beatInterval = 60/cfg.bpm;
+    (function(){
+      let timer = null;
+      function schedule(){
+        let t = ctx.currentTime + 0.05;
+        for(let p=0;p<cfg.pulses;p++){
+          thump(t,95);
+          if(cfg.double) thump(t+0.11,70);
+          if(cfg.echoDouble){ thump(t+0.24,60); if(cfg.double) thump(t+0.34,45); }
+          t += beatInterval;
+        }
+        const total = cfg.pulses*beatInterval + 2.6;
+        timer = setTimeout(schedule, total*1000);
+      }
+      schedule();
+      nodes[id].restart = () => { if(timer) clearTimeout(timer); stopAllTracked(activeOscsHB); schedule(); };
+    })();
+  }
+}
+
+// Normalize the spreadsheet's ambience/location numbers (roughly 0-4)
+// into a 0-1 gain scale. Divisor chosen from the observed data range —
+// flagged for the person to retune if it doesn't feel right in practice.
+const AMBIENCE_MAX = 4;
+function ambienceGain(v){ return Math.max(0, Math.min(1, v / AMBIENCE_MAX)); }
+
+const ALL_LAYER_IDS = ['base', ...Object.keys(LOC_CFG), ...Object.keys(SOUL_CFG)];
+const RESTARTABLE_IDS = ['fragment', ...Object.keys(SOUL_CFG)]; // layers with a meaningful "start of phrase"
+
+function layerTarget(id, scene){
+  if(id === 'base') return scene.base_on ? ambienceGain(scene.base_level) * 0.5 : 0;
+  if(LOC_CFG[id]) return ambienceGain(scene.locs[id] || 0) * 0.6;
+  if(SOUL_CFG[id]) return scene.souls.includes(id) ? SOUL_CFG[id].vol : 0;
+  return 0;
+}
+
+function restartPatternLayers(){
+  RESTARTABLE_IDS.forEach(id => { if(nodes[id] && nodes[id].restart) nodes[id].restart(); });
+}
+
+function setAllLayerGains(scene, atTime, snap){
+  ALL_LAYER_IDS.forEach(id => {
+    const node = nodes[id].gain;
+    const target = layerTarget(id, scene);
+    node.gain.cancelScheduledValues(atTime);
+    node.gain.setValueAtTime(node.gain.value, atTime);
+    if(snap){ node.gain.setValueAtTime(target, atTime); }
+    else { node.gain.linearRampToValueAtTime(target, atTime + RAMP_MS/1000); }
+  });
+}
+
+// Fixed ramp-out / restart / ramp-in cycle. Every layer ramps to silence,
+// pattern-based layers restart from the top of their phrase, then
+// everything ramps up to the new scene's targets — same 0.8s/0.8s
+// regardless of how big the change is, and regardless of whether a
+// soul happens to carry over between the two scenes (deliberately no
+// exception for that; a clean beat between every scene is the goal).
+const RAMP_MS = 800;
+let rampTimer = null;
+
+function applySceneAudio(scene, immediate){
+  if(!ctx) return; // audio not started yet — nothing to ramp
+  if(rampTimer){ clearTimeout(rampTimer); rampTimer = null; }
+  const t = ctx.currentTime;
+  if(immediate){
+    setAllLayerGains(scene, t, true);
+    restartPatternLayers();
+    return;
+  }
+  // phase 1: ramp everything down
+  ALL_LAYER_IDS.forEach(id => {
+    const node = nodes[id].gain;
+    node.gain.cancelScheduledValues(t);
+    node.gain.setValueAtTime(node.gain.value, t);
+    node.gain.linearRampToValueAtTime(0, t + RAMP_MS/1000);
+  });
+  // phase 2: restart pattern layers + ramp everything up to the new scene
+  rampTimer = setTimeout(() => {
+    if(!ctx) return;
+    const t2 = ctx.currentTime;
+    restartPatternLayers();
+    setAllLayerGains(scene, t2, false);
+    rampTimer = null;
+  }, RAMP_MS);
+}
+
+// ---------------------------------------------------------------------------
+// SCENE APPLICATION — visuals + audio together
+// ---------------------------------------------------------------------------
+let currentScene = null;
+function goToScene(scene, immediate){
+  if(currentScene === scene.id) return;
+  currentScene = scene.id;
+  // colors/orbs: unchanged direct crossfade, no dip
+  animateCornerTo(scene.g, scene.b);
+  animateOrbsTo(scene.w, scene.gold);
+  // audio: ramp-out -> restart -> ramp-in
+  applySceneAudio(scene, immediate);
+}
+
+const sceneById = {};
+SCENES.forEach(s => sceneById[s.id] = s);
+
+const sceneEls = document.querySelectorAll('section.scene');
+// Trigger point is a fixed line at the vertical center of the viewport
+// (not a visibility ratio) — a scene activates the instant it crosses
+// that line, which stays consistent regardless of how long or short
+// the scene is.
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting){
+      const s = sceneById[entry.target.id];
+      if(s) goToScene(s, false);
+    }
+  });
+}, { rootMargin: '-50% 0px -50% 0px', threshold: 0 });
+sceneEls.forEach(s => io.observe(s));
+
+// Initialize to the first scene, instantly (no ramp on page load)
+if(SCENES.length){ goToScene(SCENES[0], true); }
+
+// ---------------------------------------------------------------------------
+// AUDIO TOGGLE
+// ---------------------------------------------------------------------------
+const audioBtn = document.getElementById('audioBtn');
+audioBtn.addEventListener('click', () => {
+  if(!ctx){ initAudio(); }
+  if(ctx.state === 'suspended') ctx.resume();
+  audioStarted = !audioStarted;
+  const t = ctx.currentTime;
+  masterGain.gain.cancelScheduledValues(t);
+  masterGain.gain.setValueAtTime(masterGain.gain.value, t);
+  masterGain.gain.linearRampToValueAtTime(audioStarted ? 0.5 : 0, t + 1.2);
+  if(audioStarted && currentScene){ applySceneAudio(sceneById[currentScene], true); }
+  audioBtn.classList.toggle('active', audioStarted);
+  audioBtn.setAttribute('aria-pressed', audioStarted ? 'true' : 'false');
+  audioBtn.setAttribute('aria-label', audioStarted ? 'Mute ambient sound' : 'Play ambient sound');
+});
+
+// ---------------------------------------------------------------------------
+// AUTO-SCROLL
+// ---------------------------------------------------------------------------
+const scrollBtn = document.getElementById('scrollBtn');
+let autoScrolling = false, rafId = null;
+const wordCount = document.body.innerText.trim().split(/\s+/).length;
+const READING_WPM = 190;
+const totalScrollMs = (wordCount / READING_WPM) * 60 * 1000;
+
+function startAutoScroll(){
+  const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const startY = window.scrollY;
+  const remainingHeight = scrollHeight - startY;
+  const remainingRatio = remainingHeight / scrollHeight;
+  const durationMs = totalScrollMs * remainingRatio;
+  const startTime = performance.now();
+  function step(now){
+    if(!autoScrolling) return;
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / durationMs, 1);
+    window.scrollTo(0, startY + remainingHeight * progress);
+    if(progress < 1){ rafId = requestAnimationFrame(step); }
+    else { autoScrolling = false; scrollBtn.classList.remove('active'); scrollBtn.setAttribute('aria-pressed','false'); }
+  }
+  rafId = requestAnimationFrame(step);
+}
+scrollBtn.addEventListener('click', () => {
+  autoScrolling = !autoScrolling;
+  scrollBtn.classList.toggle('active', autoScrolling);
+  scrollBtn.setAttribute('aria-pressed', autoScrolling ? 'true' : 'false');
+  scrollBtn.setAttribute('aria-label', autoScrolling ? 'Stop auto-scroll' : 'Start auto-scroll');
+  if(autoScrolling){ startAutoScroll(); } else if(rafId){ cancelAnimationFrame(rafId); }
+});
+window.addEventListener('wheel', ()=>{ if(autoScrolling){ autoScrolling=false; scrollBtn.classList.remove('active'); scrollBtn.setAttribute('aria-pressed','false'); if(rafId) cancelAnimationFrame(rafId); }}, {passive:true});
+window.addEventListener('touchmove', ()=>{ if(autoScrolling){ autoScrolling=false; scrollBtn.classList.remove('active'); scrollBtn.setAttribute('aria-pressed','false'); if(rafId) cancelAnimationFrame(rafId); }}, {passive:true});
+window.addEventListener('scroll', ()=>{ document.getElementById('hint').style.opacity = window.scrollY > 200 ? '0' : '0.7'; }, {passive:true});
+</script>
+
+</body>
+</html>
